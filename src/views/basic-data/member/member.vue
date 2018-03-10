@@ -133,9 +133,31 @@
                             {key:'logicallyDeleted', title:'状态',
                                 render: (h, params) => {
                                     if(params.row.logicallyDeleted) {
-                                        return h('span', '停用');
+                                        return h('div', [
+                                            h('Icon', {
+                                                props: {
+                                                    type: 'record',
+                                                    color: 'red'
+                                                },
+                                                style: {
+                                                    marginRight: '5px'
+                                                }
+                                            }),
+                                            h('span', '停用')
+                                        ]);
                                     } else{
-                                        return h('span', '启用');
+                                        return h('div', [
+                                            h('Icon', {
+                                                props: {
+                                                    type: 'record',
+                                                    color: 'green'
+                                                },
+                                                style: {
+                                                    marginRight: '5px'
+                                                }
+                                            }),
+                                            h('span', '启用')
+                                        ]);
                                     }
                                 }},
                             {key:'inputManner', title:'录入方式',

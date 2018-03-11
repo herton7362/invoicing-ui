@@ -13,7 +13,9 @@
                 :form-rule="form.member.rule"
                 :form-data="form.member.data"
                 :form-transform-data="memberFormTransformData"
-                :form-transform-response="memberFormTransformResponse">
+                :form-transform-response="memberFormTransformResponse"
+                :table-transform-query-params="memberTableTransformQueryParams"
+                @on-new-modal-open="onMemberNewModalOpen">
             <template slot="query-form" slot-scope="props">
                 <FormItem class="padding-right-medium" prop="name" label="会员名称">
                     <Input v-model="props.params.name" placeholder="会员名称"/>
@@ -24,15 +26,15 @@
                 <FormItem class="padding-right-medium" prop="code" label="会员编号">
                     <Input v-model="props.params.code" placeholder="会员编号"/>
                 </FormItem>
-                <FormItem class="padding-right-medium" prop="status" label="会员状态">
-                    <RadioGroup v-model="props.params.status">
-                        <Radio label="ENABLE">启用</Radio>
-                        <Radio label="DISABLE">停用</Radio>
+                <FormItem class="padding-right-medium" prop="logicallyDeleted" label="会员状态">
+                    <RadioGroup v-model="props.params.logicallyDeleted">
+                        <Radio :label="0">启用</Radio>
+                        <Radio :label="1">停用</Radio>
                         <Radio label="">所有</Radio>
                     </RadioGroup>
                 </FormItem>
-                <FormItem class="padding-right-medium" prop="cardNo" label="会员卡号">
-                    <Input v-model="props.params.cardNo" placeholder="会员卡号"/>
+                <FormItem class="padding-right-medium" prop="cardNumber" label="会员卡号">
+                    <Input v-model="props.params.cardNumber" placeholder="会员卡号"/>
                 </FormItem>
                 <FormItem class="padding-right-medium" prop="status" label="会员卡类型">
                     <Select v-model="props.params.status">
@@ -93,11 +95,11 @@
                     </span>
                     <div style="float: left">
                         <label class="ivu-form-item-label">账户储值余额（元）</label>
-                        <span class="ivu-form-item-content">0</span>
+                        <span class="ivu-form-item-content">{{props.data.balance}}</span>
                     </div>
                     <div style="float: right">
                         <label class="ivu-form-item-label">账户积分</label>
-                        <span class="ivu-form-item-content">0</span>
+                        <span class="ivu-form-item-content">{{props.data.points}}</span>
                     </div>
                     <div style="clear:both"></div>
                 </Card>
@@ -128,8 +130,22 @@
                             {key:'name', title:'会员名'},
                             {key:'mobile', title:'电话'},
                             {key:'licenseNumber', title:'证件号码'},
-                            {key:'balance', title:'账户储值余额'},
-                            {key:'points', title:'积分'},
+                            {key:'balance', title:'账户储值余额',
+                                render: (h, params) => {
+                                    let span = h('span', '...');
+                                    util.ajax.get(`/api/member/balance/${params.row.id}`).then((response)=>{
+                                        span.elm.innerHTML = response.data;
+                                    })
+                                    return span;
+                                }},
+                            {key:'points', title:'积分',
+                                render: (h, params) => {
+                                    let span = h('span', '...');
+                                    util.ajax.get(`/api/member/points/${params.row.id}`).then((response)=>{
+                                        span.elm.innerHTML = response.data;
+                                    })
+                                    return span;
+                                }},
                             {key:'logicallyDeleted', title:'状态',
                                 render: (h, params) => {
                                     if(params.row.logicallyDeleted) {
@@ -137,7 +153,7 @@
                                             h('Icon', {
                                                 props: {
                                                     type: 'record',
-                                                    color: 'red'
+                                                    color: '#f5222d'
                                                 },
                                                 style: {
                                                     marginRight: '5px'
@@ -150,7 +166,7 @@
                                             h('Icon', {
                                                 props: {
                                                     type: 'record',
-                                                    color: 'green'
+                                                    color: '#52c41a'
                                                 },
                                                 style: {
                                                     marginRight: '5px'
@@ -208,10 +224,11 @@
                     member: {
                         rule: {
                             name: [
-                                { required: true, message: '请填写会员名', trigger: 'blur' }
+                                {required: true, message: '请填写会员名', trigger: 'blur'}
                             ],
                             mobile: [
-                                { required: true, message: '请填写联系电话', trigger: 'blur' }
+                                {required: true, message: '请填写联系电话', trigger: 'blur'},
+                                {type: 'string', message: '手机格式不正确', pattern: /^[1][3,4,5,7,8][0-9]{9}$/, trigger: 'blur'}
                             ]
                         },
                         data: {
@@ -220,7 +237,9 @@
                             mobile: null,
                             licenseNumber: null,
                             logicallyDeleted: 0,
-                            remark: null
+                            remark: null,
+                            balance: 0,
+                            points: 0
                         }
                     },
                     card: {
@@ -230,13 +249,35 @@
             }
         },
         methods: {
+            onMemberNewModalOpen() {
+              // 新增用户时余额默认为零
+                this.form.member.data.balance = 0;
+                this.form.member.data.points = 0;
+            },
             memberFormTransformData(data) {
                 data.inputManner = 'ARTIFICIAL';// 录入方式手动录入
                 return data;
             },
             memberFormTransformResponse(response) {
-                response.data.logicallyDeleted = response.data.logicallyDeleted? 1: 0
+                response.data.logicallyDeleted = response.data.logicallyDeleted? 1: 0;
+                response.data.balance = 0;
+                response.data.points = 0;
+                util.ajax.get(`/api/member/balance/${response.data.id}`).then((r)=>{
+                    response.data.balance = r.data;
+                });
+                util.ajax.get(`/api/member/points/${response.data.id}`).then((r)=>{
+                    response.data.points = r.data;
+                });
                 return response;
+            },
+            memberTableTransformQueryParams(data) {
+                let result = Object.assign({}, data, {
+                    logicallyDeleted: data.logicallyDeleted? true: false
+                });
+                if(data.logicallyDeleted === undefined || data.logicallyDeleted === '') {
+                    delete result.logicallyDeleted
+                }
+                return result;
             }
         },
         mounted() {

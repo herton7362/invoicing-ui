@@ -89,7 +89,7 @@
                 columns.push({
                     title: '操作',
                     key: 'action',
-                    width: (this.actions.length * 80),
+                    width: (this.actions.length * 45 + 40),
                     align: 'center',
                     render: (h, params) => {
                         return h('div', [
@@ -145,6 +145,12 @@
             loadGrid ({
                           silent = false // 不触发事件
                       } = {}) {
+                this.table.currentPage = 1;
+                this.reloadGrid(silent);
+            },
+            reloadGrid({
+                           silent = false // 不触发事件
+                       } = {}) {
                 if(!silent) {
                     this.$emit('on-load');
                 }

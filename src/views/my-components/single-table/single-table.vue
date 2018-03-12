@@ -135,10 +135,9 @@
                 table: {
                     actions: [
                         (h, params)=> {
-                            return h('Button', {
-                                props: {
-                                    type: 'primary',
-                                    size: 'small'
+                            return h('a', {
+                                attrs: {
+                                    href: 'javascript:void(0)'
                                 },
                                 style: {
                                     marginRight: '5px'
@@ -158,9 +157,6 @@
                                         transfer: true,
                                         title: '您确认删除这条内容吗？'
                                     },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
                                     on: {
                                         'on-ok': () => {
                                             this.remove(params.row)
@@ -168,10 +164,12 @@
                                     }
                                 },
                                 [
-                                    h('Button', {
-                                        props: {
-                                            type: 'error',
-                                            size: 'small'
+                                    h('a', {
+                                        attrs: {
+                                            href: 'javascript:void(0)'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
                                         }
                                     }, '删除')
                                 ]
@@ -239,6 +237,11 @@
             loadGrid ({
                           silent = false // 不触发事件
             } = {}) {
+                this.$refs.table.loadGrid(silent);
+            },
+            reloadGrid({
+                           silent = false // 不触发事件
+                       } = {}) {
                 this.$refs.table.loadGrid(silent);
             },
             clearData() {

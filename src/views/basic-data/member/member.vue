@@ -106,7 +106,7 @@
             </template>
         </single-table>
         <Modal title="会员卡" v-model="form.card.modal" :width="900">
-            <Table :columns="table.card.columns"></Table>
+            <single-table :columns="table.card.columns"></single-table>
         </Modal>
     </Card>
 </template>
@@ -122,6 +122,35 @@
             PagedTable
         },
         data() {
+            const statusRender = (h, params) => {
+                if(params.row.logicallyDeleted) {
+                    return h('div', [
+                        h('Icon', {
+                            props: {
+                                type: 'record',
+                                color: '#f5222d'
+                            },
+                            style: {
+                                marginRight: '5px'
+                            }
+                        }),
+                        h('span', '停用')
+                    ]);
+                } else{
+                    return h('div', [
+                        h('Icon', {
+                            props: {
+                                type: 'record',
+                                color: '#52c41a'
+                            },
+                            style: {
+                                marginRight: '5px'
+                            }
+                        }),
+                        h('span', '启用')
+                    ]);
+                }
+            }
             return {
                 table: {
                     member: {
@@ -130,7 +159,7 @@
                             {key:'name', title:'会员名'},
                             {key:'mobile', title:'电话'},
                             {key:'licenseNumber', title:'证件号码'},
-                            {key:'balance', title:'账户储值余额',
+                            {title:'账户储值余额',align: 'right',
                                 render: (h, params) => {
                                     let span = h('span', '...');
                                     util.ajax.get(`/api/member/balance/${params.row.id}`).then((response)=>{
@@ -138,7 +167,7 @@
                                     })
                                     return span;
                                 }},
-                            {key:'points', title:'积分',
+                            {title:'积分',align: 'right',
                                 render: (h, params) => {
                                     let span = h('span', '...');
                                     util.ajax.get(`/api/member/points/${params.row.id}`).then((response)=>{
@@ -146,78 +175,93 @@
                                     })
                                     return span;
                                 }},
-                            {key:'logicallyDeleted', title:'状态',
+                            {title:'状态', render: statusRender},
+                            {title:'会员卡',align: 'center',
                                 render: (h, params) => {
-                                    if(params.row.logicallyDeleted) {
-                                        return h('div', [
-                                            h('Icon', {
-                                                props: {
-                                                    type: 'record',
-                                                    color: '#f5222d'
-                                                },
-                                                style: {
-                                                    marginRight: '5px'
-                                                }
-                                            }),
-                                            h('span', '停用')
-                                        ]);
-                                    } else{
-                                        return h('div', [
-                                            h('Icon', {
-                                                props: {
-                                                    type: 'record',
-                                                    color: '#52c41a'
-                                                },
-                                                style: {
-                                                    marginRight: '5px'
-                                                }
-                                            }),
-                                            h('span', '启用')
-                                        ]);
-                                    }
-                                }},
-                            {key:'inputManner', title:'录入方式',
-                                render: (h, params) => {
-                                    if(params.row.inputManner === 'ARTIFICIAL') {
-                                        return h('span', '手动录入');
-                                    } else if(params.row.inputManner === 'EXCEL_IMPORT') {
-                                        return h('span', 'excel导入');
-                                    }
-                                    return h('span', '未知');
+                                    let span = h('a', {
+                                        attrs: {
+                                            href: 'javascript:void(0)'
+                                        },
+                                        on: {
+                                            click: ()=> {
+                                                this.form.card.modal = true;
+                                            }
+                                        }
+                                    }, '...');
+                                    util.ajax.get(`/api/member/cardCount/${params.row.id}`).then((response)=>{
+                                        //span.elm.href = '#'
+                                        span.elm.innerHTML = `${response.data} 张`;
+                                    })
+                                    return span;
                                 }},
                             {key:'remark', title:'备注'}
                         ],
                         actions: [
-                            (h, params) => {
-                                return h('Button', {
+                            (h, params)=> {
+                                return h('Dropdown', {
                                     props: {
-                                        type: 'ghost',
-                                        size: 'small'
+                                        trigger: 'click'
                                     },
                                     style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: ()=> {
-                                            this.form.card.modal = true;
-                                        }
+                                        textAlign: 'left'
                                     }
-                                }, '会员卡')
+                                }, [
+                                    h('a', {
+                                        attrs: {
+                                            href: 'javascript:void(0)'
+                                        }
+                                    }, [
+                                        h('span', '更多'),
+                                        h('Icon', {props: {type: 'arrow-down-b'}})
+                                    ]),
+                                    h('DropdownMenu', {
+                                        slot: 'list'
+                                    }, [
+                                        h('DropdownItem', {
+                                            nativeOn: {
+                                                click:()=>{
+                                                    util.ajax.post(`/api/member/enable/${params.row.id}`).then((r)=>{
+                                                        this.$Message.success('启用成功');
+                                                        this.$refs.table.reloadGrid();
+                                                    });
+                                                }
+                                            }
+                                        }, '启用'),
+                                        h('DropdownItem', {
+                                            nativeOn: {
+                                                click:()=>{
+                                                    util.ajax.post(`/api/member/disable/${params.row.id}`).then((r)=>{
+                                                        this.$Message.success('停用成功');
+                                                        this.$refs.table.reloadGrid();
+                                                    });
+                                                }
+                                            }
+                                        }, '停用'),
+                                        h('DropdownItem', {
+                                            nativeOn: {
+                                                click:()=>{
+
+                                                }
+                                            }
+                                        }, '添加会员卡')
+                                    ])
+                                ])
                             }
                         ]
                     },
                     card: {
                         columns: [
-                            {key:'code', title:'会员卡号'},
-                            {key:'code', title:'会员卡类型'},
-                            {key:'code', title:'储值余额'},
-                            {key:'code', title:'积分'},
-                            {key:'code', title:'折扣'},
-                            {key:'code', title:'发卡日期'},
-                            {key:'code', title:'到期日期'},
-                            {key:'code', title:'状态'},
+                            {key:'cardNumber', title:'会员卡号'},
+                            {key:'memberCardTypeId', title:'会员卡类型'},
+                            {key:'balance', title:'储值余额'},
+                            {key:'points', title:'积分'},
+                            {key:'discount', title:'折扣'},
+                            {key:'createdDate', title:'发卡日期'},
+                            {key:'expireDate', title:'到期日期'},
+                            {title:'状态', render: statusRender},
                             {key:'code', title:'备注'}
-                        ]
+                        ],
+                        data: []
                     }
                 },
                 form: {

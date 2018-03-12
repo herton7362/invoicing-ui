@@ -24,7 +24,7 @@
             </template>
 
             <template slot="actions">
-                <Button type="primary" @click="openNewModal"> <Icon type="plus"></Icon><span>新建</span></Button>
+                <Button type="primary" icon="plus-round" @click="openNewModal"><span>新建</span></Button>
                 <slot name="actions"/>
             </template>
         </paged-table>

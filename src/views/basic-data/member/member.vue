@@ -106,20 +106,20 @@
             </template>
         </single-table>
         <Modal title="会员卡" v-model="form.card.modal" :width="900">
-            <single-table :columns="table.card.columns"></single-table>
+            <member-card :data="table.card.data"></member-card>
         </Modal>
     </Card>
 </template>
 
 <script>
     import util from '@/libs/util';
-    import PagedTable from '@/views/my-components/single-table/paged-table.vue';
     import SingleTable from "../../my-components/single-table/single-table";
+    import MemberCard from './member-card';
 
     export default {
         components: {
             SingleTable,
-            PagedTable
+            MemberCard
         },
         data() {
             const statusRender = (h, params) => {
@@ -199,9 +199,6 @@
                         actions: [
                             (h, params)=> {
                                 return h('Dropdown', {
-                                    props: {
-                                        trigger: 'click'
-                                    },
                                     style: {
                                         textAlign: 'left'
                                     }
@@ -236,32 +233,37 @@
                                                     });
                                                 }
                                             }
-                                        }, '停用'),
-                                        h('DropdownItem', {
-                                            nativeOn: {
-                                                click:()=>{
-
-                                                }
-                                            }
-                                        }, '添加会员卡')
+                                        }, '停用')
                                     ])
                                 ])
                             }
                         ]
                     },
                     card: {
-                        columns: [
-                            {key:'cardNumber', title:'会员卡号'},
-                            {key:'memberCardTypeId', title:'会员卡类型'},
-                            {key:'balance', title:'储值余额'},
-                            {key:'points', title:'积分'},
-                            {key:'discount', title:'折扣'},
-                            {key:'createdDate', title:'发卡日期'},
-                            {key:'expireDate', title:'到期日期'},
-                            {title:'状态', render: statusRender},
-                            {key:'code', title:'备注'}
-                        ],
-                        data: []
+                        data: [
+                            {
+                                cardNumber: '001',
+                                memberCardTypeId: '白金卡',
+                                balance: 0,
+                                points: 17,
+                                discount: 0.85,
+                                createdDate: '2018-03-12',
+                                expireDate: '2019-03-12',
+                                logicallyDeleted: false,
+                                remark: '123'
+                            },
+                            {
+                                cardNumber: '002',
+                                memberCardTypeId: '白金卡',
+                                balance: 0,
+                                points: 17,
+                                discount: 0.85,
+                                createdDate: '2018-03-12',
+                                expireDate: '2019-03-12',
+                                logicallyDeleted: false,
+                                remark: '123'
+                            }
+                        ]
                     }
                 },
                 form: {

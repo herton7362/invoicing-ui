@@ -7,7 +7,7 @@
     <div>
         <Spin size="large" fix v-if="loading"></Spin>
         <Row>
-            <Row><Button type="primary" icon="plus-round" @click="openNewModal"><span>新建</span></Button></Row>
+            <Row><Button type="dashed" long icon="plus-round" @click="openNewModal"><span>新建</span></Button></Row>
             <Row class="margin-top-medium">
                 <div class="member-card-list">
                     <div class="member-card-summary" v-for="row in data">
@@ -32,7 +32,7 @@
                         </div>
                         <div class="end">
                             <div class="actions">
-                                <a href="javascript:void(0)">修改</a>
+                                <a href="javascript:void(0)" @click="openEditModal(row)">修改</a>
                                 <a href="javascript:void(0)">删除</a>
                                 <Dropdown>
                                     <a href="javascript:void(0)">更多 <Icon type="arrow-down-b"></Icon></a>
@@ -53,7 +53,8 @@
                 </div>
             </Row>
         </Row>
-        <Modal v-model="form.modal"
+        <Modal :transfer="false"
+               v-model="form.modal"
                title="会员卡维护"
                :loading="form.loading"
                :mask-closable="false"
@@ -110,7 +111,7 @@
                 <Row>
                     <Col :span="12">
                     <FormItem label="账户消费密码" prop="passwordForShow">
-                        <Input type="password" v-model="form.data.passwordForShow" placeholder="账户消费密码" disabled/>
+                        <Input v-model="form.data.passwordForShow" placeholder="账户消费密码" disabled/>
                     </FormItem>
                     </Col>
                     <Col :span="12">
@@ -257,6 +258,14 @@
                 this.form.data.memberCardTypeId = memberCardType.id;
                 this.form.modal = true;
             },
+            openEditModal(row) {
+                this.$refs.form.resetFields();
+                util.ajax.get(`/api/memberCard/${row.id}`).then((response) => {
+                    response.data.logicallyDeleted = response.data.logicallyDeleted? 1: 0;
+                    this.form.data = response.data;
+                    this.form.modal = true;
+                });
+            },
             loadData(memberId) {
                 this.loading = true;
                 this.form.data.memberId = memberId;
@@ -317,13 +326,11 @@
                 this.form.password.modal = true;
             },
             clearPassword() {
-                this.form.data.passwordForShow = null;
                 this.form.data.password = null;
             },
             saveNewPassword() {
                 this.$refs.passwordForm.validate((valid) => {
                     if (valid) {
-                        this.form.data.passwordForShow = 'xxxxxxxxxxxxxxxxxx';
                         this.form.data.password = this.form.password.data.password;
                         this.form.password.modal = false;
                     } else {
@@ -337,7 +344,14 @@
         },
         watch: {
             'form.data.password'(val) {
-                this.form.password.data.password = new Number(val)
+                if(val) {
+                    this.form.data.passwordForShow = 'xxxxxxxxxxxxxxxxxx';
+                } else {
+                    this.$set(this.form.data, 'passwordForShow', null);
+                    this.$refs.passwordForm.resetFields();
+                    this.form.password.modal = true;
+                    this.form.password.modal = false;
+                }
             }
         }
     }

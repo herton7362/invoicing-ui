@@ -105,7 +105,7 @@
                 </Card>
             </template>
         </single-table>
-        <Modal title="会员卡" v-model="form.card.modal" >
+        <Modal title="会员卡" v-model="form.card.modal" :mask-closable="false" >
             <member-card ref="memberCard" @on-save-success="memberCardSaveSuccess"></member-card>
         </Modal>
         <Modal title="会员卡类型" v-model="form.cardType.modal" >
@@ -195,13 +195,12 @@
                                         on: {
                                             click: ()=> {
                                                 proxy.then((response)=>{
-                                                    if(response.data > 0) {
-                                                        this.$refs.memberCard.loadData(params.row.id);
-                                                        this.form.card.modal = true;
-                                                    } else {
+                                                    if(response.data <= 0) {
                                                         this.$refs.memberCard.form.data.memberId = params.row.id;
-                                                        this.$refs.memberCard.openNewModal();
+                                                        setTimeout(()=>this.$refs.memberCard.openNewModal(), 200);
                                                     }
+                                                    this.$refs.memberCard.loadData(params.row.id);
+                                                    this.form.card.modal = true;
                                                 })
                                             }
                                         }

@@ -311,17 +311,17 @@ util.transformTreeData = function (data, titleKey, defaultExpanded = true) {
 util.bytesToSize = function (bytes) {
     if (!bytes) return '0 B';
 
-    var k = 1024;
+    let k = 1024;
 
-    var sizes = ['B','KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    let sizes = ['B','KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    let i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
 };
 
 util.executeGenerator = function (gen){
-    var g = gen();
+    let g = gen();
 
     function next(data){
         var result = g.next(data);
@@ -345,7 +345,7 @@ util.dateToLong = function (date) {
 // (new Date()).format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
 // (new Date()).format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
 util.dateFormat = function(date, fmt = 'yyyy-MM-dd') {
-    var o = {
+    let o = {
         "M+" : date.getMonth()+1,                 //月份
         "d+" : date.getDate(),                    //日
         "H+" : date.getHours(),                   //小时
@@ -356,7 +356,7 @@ util.dateFormat = function(date, fmt = 'yyyy-MM-dd') {
     };
     if(/(y+)/.test(fmt))
         fmt=fmt.replace(RegExp.$1, (date.getFullYear()+"").substr(4 - RegExp.$1.length));
-    for(var k in o)
+    for(let k in o)
         if(new RegExp("("+ k +")").test(fmt))
             fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
     return fmt;
@@ -367,14 +367,14 @@ util.dateTimeFormat = function (date, fmt = 'yyyy-MM-dd HH:mm:ss') {
 }
 
 util.dateFormatPretty = function(date) {
-    var second = 1000;
-    var minutes = second*60;
-    var hours = minutes*60;
-    var days = hours*24;
-    var months = days*30;
-    var myDate = date;
-    var nowtime = new Date();
-    var longtime =nowtime.getTime()- myDate.getTime();
+    let second = 1000;
+    let minutes = second*60;
+    let hours = minutes*60;
+    let days = hours*24;
+    let months = days*30;
+    let myDate = date;
+    let nowtime = new Date();
+    let longtime =nowtime.getTime()- myDate.getTime();
     if( longtime > months*2 ) {
         return date.format("yyyy-MM-dd HH:mm:ss");
     }

@@ -44,7 +44,7 @@
             </template>
 
             <template slot="actions">
-                <Button type="ghost"> <span>会员卡类型管理</span></Button>
+                <Button type="ghost" @click="form.cardType.modal=true"> <span>会员卡类型管理</span></Button>
             </template>
 
             <template slot="edit-form" slot-scope="props">
@@ -105,8 +105,11 @@
                 </Card>
             </template>
         </single-table>
-        <Modal title="会员卡" v-model="form.card.modal" :width="900">
-            <member-card :data="table.card.data"></member-card>
+        <Modal title="会员卡" v-model="form.card.modal" >
+            <member-card ref="memberCard" @on-save-success="memberCardSaveSuccess"></member-card>
+        </Modal>
+        <Modal title="会员卡类型" v-model="form.cardType.modal" >
+            <member-card-type></member-card-type>
         </Modal>
     </Card>
 </template>
@@ -115,11 +118,13 @@
     import util from '@/libs/util';
     import SingleTable from "../../my-components/single-table/single-table";
     import MemberCard from './member-card';
+    import MemberCardType from './member-card-type';
 
     export default {
         components: {
             SingleTable,
-            MemberCard
+            MemberCard,
+            MemberCardType
         },
         data() {
             const statusRender = (h, params) => {
@@ -178,18 +183,30 @@
                             {title:'状态', render: statusRender},
                             {title:'会员卡',align: 'center',
                                 render: (h, params) => {
+                                    let proxy = new Promise((resolve, reject)=>{
+                                        util.ajax.get(`/api/member/cardCount/${params.row.id}`).then((response)=>{
+                                            resolve(response);
+                                        })
+                                    });
                                     let span = h('a', {
                                         attrs: {
                                             href: 'javascript:void(0)'
                                         },
                                         on: {
                                             click: ()=> {
-                                                this.form.card.modal = true;
+                                                proxy.then((response)=>{
+                                                    if(response.data > 0) {
+                                                        this.$refs.memberCard.loadData(params.row.id);
+                                                        this.form.card.modal = true;
+                                                    } else {
+                                                        this.$refs.memberCard.form.data.memberId = params.row.id;
+                                                        this.$refs.memberCard.openNewModal();
+                                                    }
+                                                })
                                             }
                                         }
                                     }, '...');
-                                    util.ajax.get(`/api/member/cardCount/${params.row.id}`).then((response)=>{
-                                        //span.elm.href = '#'
+                                    proxy.then((response)=>{
                                         span.elm.innerHTML = `${response.data} 张`;
                                     })
                                     return span;
@@ -242,24 +259,35 @@
                     card: {
                         data: [
                             {
-                                cardNumber: '001',
+                                cardNumber: 'SYTH:101336',
                                 memberCardTypeId: '白金卡',
                                 balance: 0,
                                 points: 17,
                                 discount: 0.85,
                                 createdDate: '2018-03-12',
-                                expireDate: '2019-03-12',
+                                expireDate: '2018-03-12',
                                 logicallyDeleted: false,
                                 remark: '123'
                             },
                             {
-                                cardNumber: '002',
+                                cardNumber: 'SYTH:101336',
                                 memberCardTypeId: '白金卡',
                                 balance: 0,
                                 points: 17,
                                 discount: 0.85,
                                 createdDate: '2018-03-12',
-                                expireDate: '2019-03-12',
+                                expireDate: '2019-03-14',
+                                logicallyDeleted: false,
+                                remark: '123'
+                            },
+                            {
+                                cardNumber: 'SYTH:101336',
+                                memberCardTypeId: '白金卡',
+                                balance: 0,
+                                points: 17,
+                                discount: 0.85,
+                                createdDate: '2018-03-12',
+                                expireDate: '2018-04-1',
                                 logicallyDeleted: false,
                                 remark: '123'
                             }
@@ -289,6 +317,9 @@
                         }
                     },
                     card: {
+                        modal: false
+                    },
+                    cardType: {
                         modal: false
                     }
                 }
@@ -324,6 +355,9 @@
                     delete result.logicallyDeleted
                 }
                 return result;
+            },
+            memberCardSaveSuccess() {
+                this.$refs.table.reloadGrid();
             }
         },
         mounted() {

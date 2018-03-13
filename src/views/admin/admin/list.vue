@@ -51,11 +51,11 @@
 
 <script>
 import util from '@/libs/util';
-import singleTable from '@/views/my-components/single-table/single-table.vue';
+import SingleTable from '@/views/my-components/single-table/single-table.vue';
 
 export default {
     components: {
-        singleTable
+        SingleTable
     },
     data() {
         return {

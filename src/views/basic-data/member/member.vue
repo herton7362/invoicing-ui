@@ -255,43 +255,6 @@
                                 ])
                             }
                         ]
-                    },
-                    card: {
-                        data: [
-                            {
-                                cardNumber: 'SYTH:101336',
-                                memberCardTypeId: '白金卡',
-                                balance: 0,
-                                points: 17,
-                                discount: 0.85,
-                                createdDate: '2018-03-12',
-                                expireDate: '2018-03-12',
-                                logicallyDeleted: false,
-                                remark: '123'
-                            },
-                            {
-                                cardNumber: 'SYTH:101336',
-                                memberCardTypeId: '白金卡',
-                                balance: 0,
-                                points: 17,
-                                discount: 0.85,
-                                createdDate: '2018-03-12',
-                                expireDate: '2019-03-14',
-                                logicallyDeleted: false,
-                                remark: '123'
-                            },
-                            {
-                                cardNumber: 'SYTH:101336',
-                                memberCardTypeId: '白金卡',
-                                balance: 0,
-                                points: 17,
-                                discount: 0.85,
-                                createdDate: '2018-03-12',
-                                expireDate: '2018-04-1',
-                                logicallyDeleted: false,
-                                remark: '123'
-                            }
-                        ]
                     }
                 },
                 form: {

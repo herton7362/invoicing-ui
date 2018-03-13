@@ -5,6 +5,7 @@
 
 <template>
     <div>
+        <Spin size="large" fix v-if="loading"></Spin>
         <Row>
             <Row><Button type="primary" icon="plus-round" @click="openNewModal"><span>新建</span></Button></Row>
             <Row class="margin-top-medium">
@@ -161,6 +162,7 @@
         name: 'member-card',
         data() {
             return {
+                loading: true,
                 data: [],
                 form: {
                     modal: false,
@@ -256,6 +258,7 @@
                 this.form.modal = true;
             },
             loadData(memberId) {
+                this.loading = true;
                 this.form.data.memberId = memberId;
                 util.ajax.get('/api/memberCard', {
                     params: {
@@ -268,6 +271,7 @@
                         data.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === data.memberCardTypeId).name
                     })
                     this.data = response.data.content;
+                    this.loading = false;
                 })
             },
             save() {

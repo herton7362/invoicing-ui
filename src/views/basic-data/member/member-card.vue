@@ -39,15 +39,25 @@
                                 <Dropdown :transfer="true">
                                     <a href="javascript:void(0)">更多 <Icon type="arrow-down-b"></Icon></a>
                                     <DropdownMenu slot="list">
-                                        <DropdownItem>启用</DropdownItem>
-                                        <DropdownItem>停用</DropdownItem>
+                                        <DropdownItem @click.native="enable(row)">启用</DropdownItem>
+                                        <DropdownItem @click.native="disable(row)">停用</DropdownItem>
                                         <DropdownItem @click.native="openRechargeModal(row)">会员卡充值</DropdownItem>
                                         <DropdownItem>积分兑换</DropdownItem>
-                                        <DropdownItem>积分调整</DropdownItem>
+                                        <DropdownItem @click.native="openChangePointsModal(row)">积分调整</DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
                             </div>
                             <div class="expire-date">
+                                <span v-if="!row.logicallyDeleted">
+                                    <Tooltip content="启用">
+                                        <Icon type="record" color="#52c41a"></Icon>
+                                    </Tooltip>
+                                </span>
+                                <span v-if="row.logicallyDeleted">
+                                    <Tooltip content="停用">
+                                        <Icon type="record" color="#ccc"></Icon>
+                                    </Tooltip>
+                                </span>
                                 <span v-html="formatExpireDate(row.expireDate)"></span>
                                 <Tooltip :content="`有效期 ${row.createdDate} 至 ${row.expireDate}`">
                                     <Icon type="help-circled"></Icon>
@@ -165,7 +175,7 @@
                v-model="form.recharge.modal"
                :loading="form.recharge.loading"
                @on-ok="recharge">
-            <Form ref="rechargeForm" :model="form.recharge.data" :rules="form.recharge.rule" :label-width="120">
+            <Form ref="rechargeForm" :model="form.recharge.data" :rules="form.recharge.rule" :label-width="110">
                 <Card dis-hover>
                     <div slot="title">
                           <Row>
@@ -202,6 +212,43 @@
                     <Row>
                         <FormItem label="备注" prop="remark">
                             <Input v-model="form.recharge.data.remark" placeholder="备注"/>
+                        </FormItem>
+                    </Row>
+                </Card>
+            </Form>
+        </Modal>
+
+        <Modal title="积分调整"
+               v-model="form.points.modal"
+               :loading="form.points.loading"
+               @on-ok="changePoints">
+            <Form ref="pointsForm" :model="form.points.data" :rules="form.points.rule" :label-width="100">
+                <Card dis-hover>
+                    <div slot="title">
+                        <Row>
+                            <Col :span="12">
+                            {{form.points.memberCard.memberCardTypeName}} ({{form.points.memberCard.cardNumber}})
+                            </Col>
+                            <Col :span="12">
+                            <div class="account-name">{{member.name}} {{member.mobile}}</div>
+                            </Col>
+                        </Row>
+                    </div>
+                    <Row>
+                        <div class="last-balance">
+                            <Icon type="social-yen"></Icon> 积分余额:{{form.points.memberCard.points}}元
+                        </div>
+                    </Row>
+                </Card>
+                <Card dis-hover class="margin-top-medium">
+                    <Row>
+                        <FormItem label="本次变动积分" prop="value">
+                            <InputNumber v-model="form.points.data.value" placeholder="本次变动积分" style="width: 100%"/>
+                        </FormItem>
+                    </Row>
+                    <Row>
+                        <FormItem label="调整原因" prop="remark">
+                            <Input v-model="form.points.data.remark" placeholder="调整原因"/>
                         </FormItem>
                     </Row>
                 </Card>
@@ -279,6 +326,7 @@
                         loading: true,
                         memberCard: {},
                         data: {
+                            memberCardId: null,
                             value: 0,
                             extra: 0,
                             receiveAccountId: null,
@@ -286,10 +334,42 @@
                         },
                         rule: {
                             value: [
-                                { required: true, message: '请填写充值金额', trigger: 'blur' }
+                                { type: 'number', required: true, message: '请填写充值金额', trigger: 'blur' },
+                                { validator: (rule, value, callback, source, options) => {
+                                        var errors = [];
+                                        if(this.form.recharge.data.value === 0) {
+                                            errors.push('充值金额不能为0')
+                                        }
+                                        callback(errors);
+                                    } }
                             ],
                             receiveAccountId: [
                                 { required: true, message: '请选择收款账户', trigger: 'blur' }
+                            ]
+                        }
+                    },
+                    points: {
+                        modal: false,
+                        loading: true,
+                        memberCard: {},
+                        data: {
+                            memberCardId: null,
+                            value: 0,
+                            remark: null
+                        },
+                        rule: {
+                            value: [
+                                { type: 'number', required: true, message: '请填写变动积分', trigger: 'blur' },
+                                { validator: (rule, value, callback, source, options) => {
+                                        var errors = [];
+                                        if(this.form.points.data.value === 0) {
+                                            errors.push('变动积分不能为0')
+                                        }
+                                        callback(errors);
+                                    }}
+                            ],
+                            remark: [
+                                { required: true, message: '请填写调整原因', trigger: 'blur' }
                             ]
                         }
                     }
@@ -419,14 +499,80 @@
                 })
             },
             openRechargeModal(row) {
-                util.ajax.get(`/api/memberCard/${row.id}`).then((response) => {
-                    response.data.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === response.data.memberCardTypeId).name
-                    this.form.recharge.memberCard = response.data;
+                const open = ()=> {
+                    this.$refs.rechargeForm.resetFields();
+                    row.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === row.memberCardTypeId).name
+                    this.form.recharge.memberCard = row;
+                    this.form.recharge.data.memberCardId = row.id
                     this.form.recharge.modal = true;
-                });
+                }
+                if(row.logicallyDeleted) {
+                    this.$Modal.confirm({
+                        title: '系统消息',
+                        content: '当前会员卡已停用，是否继续充值？',
+                        onOk: open
+                    });
+                } else {
+                    open();
+                }
+            },
+            openChangePointsModal(row) {
+                const open = ()=> {
+                    this.$refs.pointsForm.resetFields();
+                    row.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === row.memberCardTypeId).name
+                    this.form.points.memberCard = row;
+                    this.form.points.data.memberCardId = row.id
+                    this.form.points.modal = true;
+                }
+                if(row.logicallyDeleted) {
+                    this.$Modal.confirm({
+                        title: '系统消息',
+                        content: '当前会员卡已停用，是否继续调整？',
+                        onOk: open
+                    });
+                } else {
+                    open();
+                }
             },
             recharge() {
-
+                this.$refs.rechargeForm.validate((valid) => {
+                    if (valid) {
+                        util.ajax.post(`/api/memberCard/balance/${this.form.recharge.data.memberCardId}`, this.form.recharge.data)
+                            .then(()=>{
+                                this.$Message.success('充值成功');
+                                this.loadData(this.member);
+                                this.form.recharge.modal = false;
+                            })
+                    } else {
+                        this.clearFormLoading(this.form.recharge);
+                    }
+                })
+            },
+            enable(row) {
+                util.ajax.post(`/api/memberCard/enable/${row.id}`).then((r)=>{
+                    this.$Message.success('启用成功');
+                    this.loadData(this.member);
+                });
+            },
+            disable(row) {
+                util.ajax.post(`/api/memberCard/disable/${row.id}`).then((r)=>{
+                    this.$Message.success('停用成功');
+                    this.loadData(this.member);
+                });
+            },
+            changePoints() {
+                this.$refs.pointsForm.validate((valid) => {
+                    if (valid) {
+                        util.ajax.post(`/api/memberCard/points/${this.form.points.data.memberCardId}`, this.form.points.data)
+                            .then(()=>{
+                                this.$Message.success('调整积分成功');
+                                this.loadData(this.member);
+                                this.form.points.modal = false;
+                            })
+                    } else {
+                        this.clearFormLoading(this.form.points);
+                    }
+                })
             }
         },
         mounted() {

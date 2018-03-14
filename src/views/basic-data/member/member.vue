@@ -130,7 +130,7 @@
                         h('Icon', {
                             props: {
                                 type: 'record',
-                                color: '#f5222d'
+                                color: '#ccc'
                             },
                             style: {
                                 marginRight: '5px'

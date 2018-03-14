@@ -170,7 +170,7 @@
                     <div slot="title">
                           <Row>
                               <Col :span="12">
-                              {{form.recharge.data.memberCardTypeName}} ({{form.recharge.data.cardNumber}})
+                              {{form.recharge.memberCard.memberCardTypeName}} ({{form.recharge.memberCard.cardNumber}})
                               </Col>
                               <Col :span="12">
                               <div class="account-name">{{member.name}} {{member.mobile}}</div>
@@ -179,29 +179,29 @@
                     </div>
                     <Row>
                         <div class="last-balance">
-                            <Icon type="social-yen"></Icon> 当前余额:{{form.recharge.data.balance}}元
+                            <Icon type="social-yen"></Icon> 当前余额:{{form.recharge.memberCard.balance}}元
                         </div>
                     </Row>
                 </Card>
                 <Card dis-hover class="margin-top-medium">
                     <Row>
-                        <FormItem label="本次充值（元）">
-                            <InputNumber placeholder="本次充值（元）" style="width: 100%"/>
+                        <FormItem label="本次充值（元）" prop="value">
+                            <InputNumber v-model="form.recharge.data.value" placeholder="本次充值（元）" style="width: 100%"/>
                         </FormItem>
                     </Row>
                     <Row>
-                        <FormItem label="本次赠送（元）">
-                            <InputNumber placeholder="本次赠送（元）" style="width: 100%"/>
+                        <FormItem label="本次赠送（元）" prop="extra">
+                            <InputNumber v-model="form.recharge.data.extra" placeholder="本次赠送（元）" style="width: 100%"/>
                         </FormItem>
                     </Row>
                     <Row>
-                        <FormItem label="收款账户">
-                            <Input placeholder="收款账户"/>
+                        <FormItem label="收款账户" prop="receiveAccountId">
+                            <Input v-model="form.recharge.data.receiveAccountId" placeholder="收款账户"/>
                         </FormItem>
                     </Row>
                     <Row>
-                        <FormItem label="备注">
-                            <Input placeholder="备注"/>
+                        <FormItem label="备注" prop="remark">
+                            <Input v-model="form.recharge.data.remark" placeholder="备注"/>
                         </FormItem>
                     </Row>
                 </Card>
@@ -277,11 +277,20 @@
                     recharge: {
                         modal: false,
                         loading: true,
+                        memberCard: {},
                         data: {
-
+                            value: 0,
+                            extra: 0,
+                            receiveAccountId: null,
+                            remark: null
                         },
                         rule: {
-
+                            value: [
+                                { required: true, message: '请填写充值金额', trigger: 'blur' }
+                            ],
+                            receiveAccountId: [
+                                { required: true, message: '请选择收款账户', trigger: 'blur' }
+                            ]
                         }
                     }
                 },
@@ -412,7 +421,7 @@
             openRechargeModal(row) {
                 util.ajax.get(`/api/memberCard/${row.id}`).then((response) => {
                     response.data.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === response.data.memberCardTypeId).name
-                    this.form.recharge.data = response.data;
+                    this.form.recharge.memberCard = response.data;
                     this.form.recharge.modal = true;
                 });
             },

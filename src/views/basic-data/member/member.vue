@@ -199,7 +199,7 @@
                                                         this.$refs.memberCard.form.data.memberId = params.row.id;
                                                         setTimeout(()=>this.$refs.memberCard.openNewModal(), 200);
                                                     }
-                                                    this.$refs.memberCard.loadData(params.row.id);
+                                                    this.$refs.memberCard.loadData(params.row);
                                                     this.form.card.modal = true;
                                                 })
                                             }

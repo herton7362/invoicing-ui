@@ -189,7 +189,6 @@
         methods: {
             remove (row) {
                 util.ajax.delete(`/api/${this.domainUrl}/${row.id}`).then(() => {
-                    this.form.modal = false;
                     this.$Message.success('删除成功');
                     this.loadGrid();
                 });

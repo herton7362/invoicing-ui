@@ -4,7 +4,7 @@
 </style>
 
 <template>
-    <div>
+    <div class="member-card">
         <Spin size="large" fix v-if="loading"></Spin>
         <Row>
             <Row><Button type="dashed" long icon="plus-round" @click="openNewModal"><span>新建</span></Button></Row>
@@ -33,12 +33,17 @@
                         <div class="end">
                             <div class="actions">
                                 <a href="javascript:void(0)" @click="openEditModal(row)">修改</a>
-                                <a href="javascript:void(0)">删除</a>
+                                <Poptip confirm transfer title="您确定删除这条内容吗？" @on-ok="remove(row)">
+                                    <a href="javascript:void(0)">删除</a>
+                                </Poptip>
                                 <Dropdown>
                                     <a href="javascript:void(0)">更多 <Icon type="arrow-down-b"></Icon></a>
                                     <DropdownMenu slot="list">
                                         <DropdownItem>启用</DropdownItem>
                                         <DropdownItem>停用</DropdownItem>
+                                        <DropdownItem @click.native="openRechargeModal(row)">会员卡充值</DropdownItem>
+                                        <DropdownItem>积分兑换</DropdownItem>
+                                        <DropdownItem>积分调整</DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
                             </div>
@@ -63,7 +68,9 @@
                 <Row>
                     <FormItem label="会员卡类型" prop="memberCardTypeId">
                         <RadioGroup v-model="form.data.memberCardTypeId" @on-change="memberCardTypeIdChange">
-                            <Radio :label="memberCardType.id" v-for="memberCardType in memberCardTypes">{{memberCardType.name}}</Radio>
+                            <Radio :label="memberCardType.id"
+                                   v-for="memberCardType in memberCardTypes"
+                                   :key="memberCardType.id">{{memberCardType.name}}</Radio>
                         </RadioGroup>
                     </FormItem>
                 </Row>
@@ -154,6 +161,54 @@
                 </Form>
             </Modal>
         </Modal>
+
+        <Modal title="会员充值"
+               :transfer="false"
+               v-model="form.recharge.modal"
+               :loading="form.recharge.loading"
+               @on-ok="recharge">
+            <Form ref="rechargeForm" :model="form.recharge.data" :rules="form.recharge.rule" :label-width="120">
+                <Card dis-hover>
+                    <div slot="title">
+                          <Row>
+                              <Col :span="12">
+                              {{form.recharge.data.memberCardTypeName}} ({{form.recharge.data.cardNumber}})
+                              </Col>
+                              <Col :span="12">
+                              <div class="account-name">{{member.name}} {{member.mobile}}</div>
+                              </Col>
+                          </Row>
+                    </div>
+                    <Row>
+                        <div class="last-balance">
+                            <Icon type="social-yen"></Icon> 当前余额:{{form.recharge.data.balance}}元
+                        </div>
+                    </Row>
+                </Card>
+                <Card dis-hover class="margin-top-medium">
+                    <Row>
+                        <FormItem label="本次充值（元）">
+                            <InputNumber placeholder="本次充值（元）" style="width: 100%"/>
+                        </FormItem>
+                    </Row>
+                    <Row>
+                        <FormItem label="本次赠送（元）">
+                            <InputNumber placeholder="本次赠送（元）" style="width: 100%"/>
+                        </FormItem>
+                    </Row>
+                    <Row>
+                        <FormItem label="收款账户">
+                            <Input placeholder="收款账户"/>
+                        </FormItem>
+                    </Row>
+                    <Row>
+                        <FormItem label="备注">
+                            <Input placeholder="备注"/>
+                        </FormItem>
+                    </Row>
+                </Card>
+            </Form>
+        </Modal>
     </div>
 </template>
 
@@ -165,6 +220,7 @@
             return {
                 loading: true,
                 data: [],
+                member: {},
                 form: {
                     modal: false,
                     loading: true,
@@ -217,6 +273,16 @@
                                 }}
                             ]
                         }
+                    },
+                    recharge: {
+                        modal: false,
+                        loading: true,
+                        data: {
+
+                        },
+                        rule: {
+
+                        }
                     }
                 },
                 memberCardTypes: []
@@ -266,14 +332,15 @@
                     this.form.modal = true;
                 });
             },
-            loadData(memberId) {
+            loadData(member) {
                 this.loading = true;
-                this.form.data.memberId = memberId;
+                this.form.data.memberId = member.id;
+                this.member = member;
                 util.ajax.get('/api/memberCard', {
                     params: {
                         sort: 'sortNumber,updatedDate',
                         order: 'asc,desc',
-                        memberId: memberId
+                        memberId: member.id
                     }
                 }) .then((response) => {
                     response.data.content.forEach((data)=>{
@@ -299,6 +366,12 @@
                         this.clearFormLoading(this.form);
                     }
                 })
+            },
+            remove(row) {
+                util.ajax.delete(`/api/memberCard/${row.id}`).then(() => {
+                    this.$Message.success('删除成功');
+                    this.loadData(this.form.data.memberId);
+                });
             },
             clearFormLoading(form) {
                 form.loading = false;
@@ -337,6 +410,16 @@
                         this.clearFormLoading(this.form.password);
                     }
                 })
+            },
+            openRechargeModal(row) {
+                util.ajax.get(`/api/memberCard/${row.id}`).then((response) => {
+                    response.data.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === response.data.memberCardTypeId).name
+                    this.form.recharge.data = response.data;
+                    this.form.recharge.modal = true;
+                });
+            },
+            recharge() {
+
             }
         },
         mounted() {

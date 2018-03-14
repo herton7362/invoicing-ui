@@ -18,7 +18,7 @@
             <slot name="actions"/>
         </Row>
         <Row class="margin-top-medium">
-            <Table :columns="table.columns" :data="table.data" :height="height" :width="width"></Table>
+            <Table ref="table" :columns="table.columns" :data="table.data" :height="height" :width="width"></Table>
         </Row>
         <Row class="margin-top-medium">
             <Page :total="table.total"

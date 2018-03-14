@@ -1,3 +1,4 @@
+import "babel-polyfill";
 import Vue from 'vue';
 import iView from 'iview';
 import iViewExpand from './views/my-components/iview-expand/index';

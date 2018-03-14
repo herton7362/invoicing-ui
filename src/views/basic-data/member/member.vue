@@ -105,9 +105,6 @@
                 </Card>
             </template>
         </single-table>
-        <Modal title="会员卡" v-model="form.card.modal" :mask-closable="false" >
-            <member-card ref="memberCard" @on-save-success="memberCardSaveSuccess"></member-card>
-        </Modal>
         <Modal title="会员卡类型" v-model="form.cardType.modal" >
             <member-card-type></member-card-type>
         </Modal>
@@ -160,6 +157,16 @@
                 table: {
                     member: {
                         columns: [
+                            {
+                                type: 'expand',
+                                width: 50,
+                                render: (h, params) => h(MemberCard, {
+                                    ref: 'memberCard',
+                                    props: {
+                                        member: params.row
+                                    }
+                                })
+                            },
                             {key:'code', title:'会员编号'},
                             {key:'name', title:'会员名'},
                             {key:'mobile', title:'电话'},
@@ -183,29 +190,17 @@
                             {title:'状态', render: statusRender},
                             {title:'会员卡',align: 'center',
                                 render: (h, params) => {
-                                    let proxy = new Promise((resolve, reject)=>{
-                                        util.ajax.get(`/api/member/cardCount/${params.row.id}`).then((response)=>{
-                                            resolve(response);
-                                        })
-                                    });
                                     let span = h('a', {
                                         attrs: {
                                             href: 'javascript:void(0)'
                                         },
                                         on: {
                                             click: ()=> {
-                                                proxy.then((response)=>{
-                                                    if(response.data <= 0) {
-                                                        this.$refs.memberCard.form.data.memberId = params.row.id;
-                                                        setTimeout(()=>this.$refs.memberCard.openNewModal(), 200);
-                                                    }
-                                                    this.$refs.memberCard.loadData(params.row);
-                                                    this.form.card.modal = true;
-                                                })
+                                                this.$set(this.$refs.table.$refs.table.table.data[params.index], '_expanded', true);
                                             }
                                         }
                                     }, '...');
-                                    proxy.then((response)=>{
+                                    util.ajax.get(`/api/member/cardCount/${params.row.id}`).then((response)=>{
                                         span.elm.innerHTML = `${response.data} 张`;
                                     })
                                     return span;
@@ -317,9 +312,6 @@
                     delete result.logicallyDeleted
                 }
                 return result;
-            },
-            memberCardSaveSuccess() {
-                this.$refs.table.reloadGrid();
             }
         },
         mounted() {

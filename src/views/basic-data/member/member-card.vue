@@ -6,8 +6,8 @@
 <template>
     <div class="member-card">
         <Spin size="large" fix v-if="loading"></Spin>
-        <Row>
-            <Row><Button type="dashed" long icon="plus-round" @click="openNewModal"><span>新建</span></Button></Row>
+        <Card dis-hover>
+            <Row><Button type="dashed" long icon="plus-round" @click="openNewModal"><span>新建会员卡</span></Button></Row>
             <Row class="margin-top-medium">
                 <div class="member-card-list">
                     <div class="member-card-summary" v-for="row in data">
@@ -36,7 +36,7 @@
                                 <Poptip confirm transfer title="您确定删除这条内容吗？" @on-ok="remove(row)">
                                     <a href="javascript:void(0)">删除</a>
                                 </Poptip>
-                                <Dropdown>
+                                <Dropdown :transfer="true">
                                     <a href="javascript:void(0)">更多 <Icon type="arrow-down-b"></Icon></a>
                                     <DropdownMenu slot="list">
                                         <DropdownItem>启用</DropdownItem>
@@ -57,9 +57,8 @@
                     </div>
                 </div>
             </Row>
-        </Row>
-        <Modal :transfer="false"
-               v-model="form.modal"
+        </Card>
+        <Modal v-model="form.modal"
                title="会员卡维护"
                :loading="form.loading"
                :mask-closable="false"
@@ -163,7 +162,6 @@
         </Modal>
 
         <Modal title="会员充值"
-               :transfer="false"
                v-model="form.recharge.modal"
                :loading="form.recharge.loading"
                @on-ok="recharge">
@@ -216,11 +214,13 @@
     import util from '@/libs/util';
     export default {
         name: 'member-card',
+        props: {
+            member: Object,
+        },
         data() {
             return {
                 loading: true,
                 data: [],
-                member: {},
                 form: {
                     modal: false,
                     loading: true,
@@ -290,7 +290,7 @@
         },
         methods: {
             loadMemberCardType() {
-                util.ajax.get('/api/memberCardType', {
+                return util.ajax.get('/api/memberCardType', {
                     params: {
                         sort: 'discount',
                         order: 'desc'
@@ -335,7 +335,6 @@
             loadData(member) {
                 this.loading = true;
                 this.form.data.memberId = member.id;
-                this.member = member;
                 util.ajax.get('/api/memberCard', {
                     params: {
                         sort: 'sortNumber,updatedDate',
@@ -355,9 +354,8 @@
                     if (valid) {
                         util.ajax.post(`/api/memberCard`, this.form.data).then(() => {
                             this.form.modal = false;
-                            this.$emit('on-save-success');
                             this.$Message.success('保存成功');
-                            this.loadData(this.form.data.memberId);
+                            this.loadData(this.member);
                         }).catch((error)=>{
                             this.clearFormLoading();
                             return Promise.reject(error);
@@ -370,7 +368,7 @@
             remove(row) {
                 util.ajax.delete(`/api/memberCard/${row.id}`).then(() => {
                     this.$Message.success('删除成功');
-                    this.loadData(this.form.data.memberId);
+                    this.loadData(this.member);
                 });
             },
             clearFormLoading(form) {
@@ -423,7 +421,7 @@
             }
         },
         mounted() {
-            this.loadMemberCardType();
+            this.loadMemberCardType().then(()=>this.loadData(this.member));
         },
         watch: {
             'form.data.password'(val) {

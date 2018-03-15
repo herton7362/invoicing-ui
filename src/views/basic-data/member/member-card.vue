@@ -42,7 +42,7 @@
                                         <DropdownItem @click.native="enable(row)">启用</DropdownItem>
                                         <DropdownItem @click.native="disable(row)">停用</DropdownItem>
                                         <DropdownItem @click.native="openRechargeModal(row)">会员卡充值</DropdownItem>
-                                        <DropdownItem>积分兑换</DropdownItem>
+                                        <DropdownItem @click.native="openExchangePointsModal(row)">积分兑换</DropdownItem>
                                         <DropdownItem @click.native="openChangePointsModal(row)">积分调整</DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
@@ -183,12 +183,12 @@
                               {{form.recharge.memberCard.memberCardTypeName}} ({{form.recharge.memberCard.cardNumber}})
                               </Col>
                               <Col :span="12">
-                              <div class="account-name">{{member.name}} {{member.mobile}}</div>
+                              <div class="member-card-account-name">{{member.name}} {{member.mobile}}</div>
                               </Col>
                           </Row>
                     </div>
                     <Row>
-                        <div class="last-balance">
+                        <div class="member-card-last-balance">
                             <Icon type="social-yen"></Icon> 当前余额:{{form.recharge.memberCard.balance}}元
                         </div>
                     </Row>
@@ -218,6 +218,47 @@
             </Form>
         </Modal>
 
+        <Modal title="积分兑换"
+               v-model="form.exchangePoints.modal"
+               :loading="form.exchangePoints.loading"
+               @on-ok="exchangePoints">
+            <Form ref="exchangePointsForm" :model="form.exchangePoints.data" :rules="form.exchangePoints.rule" :label-width="100">
+                <Card dis-hover>
+                    <div slot="title">
+                        <Row>
+                            <Col :span="12">
+                            {{form.exchangePoints.memberCard.memberCardTypeName}} ({{form.exchangePoints.memberCard.cardNumber}})
+                            </Col>
+                            <Col :span="12">
+                            <div class="member-card-account-name">{{member.name}} {{member.mobile}}</div>
+                            </Col>
+                        </Row>
+                    </div>
+                    <Row>
+                        <div class="member-card-last-balance">
+                            <Icon type="social-bitcoin"></Icon> 积分余额:{{form.exchangePoints.memberCard.points}}
+                            <span style="float: right"><Icon type="social-yen"></Icon> 当前余额:{{form.exchangePoints.memberCard.balance}}元</span>
+                        </div>
+                    </Row>
+                </Card>
+                <Tabs class="margin-top-medium" :value="form.exchangePoints.type">
+                    <TabPane label="转储值余额" name="toBalance">
+                        <Row>
+                            <FormItem label="使用积分" prop="points">
+                                <InputNumber v-model="form.exchangePoints.data.points" placeholder="使用积分" style="width: 100%"/>
+                            </FormItem>
+                        </Row>
+                        <Row>
+                            <FormItem label="转化储值" prop="balance">
+                                <InputNumber v-model="form.exchangePoints.data.balance" placeholder="转化储值" style="width: 100%"/>
+                            </FormItem>
+                        </Row>
+                    </TabPane>
+                    <TabPane label="兑换商品" name="toProduct">功能暂未上架</TabPane>
+                </Tabs>
+            </Form>
+        </Modal>
+
         <Modal title="积分调整"
                v-model="form.points.modal"
                :loading="form.points.loading"
@@ -230,13 +271,13 @@
                             {{form.points.memberCard.memberCardTypeName}} ({{form.points.memberCard.cardNumber}})
                             </Col>
                             <Col :span="12">
-                            <div class="account-name">{{member.name}} {{member.mobile}}</div>
+                            <div class="member-card-account-name">{{member.name}} {{member.mobile}}</div>
                             </Col>
                         </Row>
                     </div>
                     <Row>
-                        <div class="last-balance">
-                            <Icon type="social-yen"></Icon> 积分余额:{{form.points.memberCard.points}}元
+                        <div class="member-card-last-balance">
+                            <Icon type="social-bitcoin"></Icon> 积分余额:{{form.points.memberCard.points}}
                         </div>
                     </Row>
                 </Card>
@@ -337,7 +378,7 @@
                                 { type: 'number', required: true, message: '请填写充值金额', trigger: 'blur' },
                                 { validator: (rule, value, callback, source, options) => {
                                         var errors = [];
-                                        if(this.form.recharge.data.value === 0) {
+                                        if(value === 0) {
                                             errors.push('充值金额不能为0')
                                         }
                                         callback(errors);
@@ -345,6 +386,39 @@
                             ],
                             receiveAccountId: [
                                 { required: true, message: '请选择收款账户', trigger: 'blur' }
+                            ]
+                        }
+                    },
+                    exchangePoints: {
+                        modal: false,
+                        loading: true,
+                        memberCard: {},
+                        type: 'toBalance',
+                        data: {
+                            memberCardId: null,
+                            points: 0,
+                            balance: 0
+                        },
+                        rule: {
+                            points: [
+                                { type: 'number', required: true, message: '请填写变动积分', trigger: 'blur' },
+                                { validator: (rule, value, callback, source, options) => {
+                                        var errors = [];
+                                        if(value === 0) {
+                                            errors.push('变动积分不能为0')
+                                        }
+                                        callback(errors);
+                                    }}
+                            ],
+                            balance: [
+                                { type: 'number', required: true, message: '请填写转化储值', trigger: 'blur' },
+                                { validator: (rule, value, callback, source, options) => {
+                                        var errors = [];
+                                        if(value === 0) {
+                                            errors.push('转化储值不能为0')
+                                        }
+                                        callback(errors);
+                                    }}
                             ]
                         }
                     },
@@ -362,7 +436,7 @@
                                 { type: 'number', required: true, message: '请填写变动积分', trigger: 'blur' },
                                 { validator: (rule, value, callback, source, options) => {
                                         var errors = [];
-                                        if(this.form.points.data.value === 0) {
+                                        if(value === 0) {
                                             errors.push('变动积分不能为0')
                                         }
                                         callback(errors);
@@ -426,8 +500,8 @@
                 this.form.data.memberId = member.id;
                 util.ajax.get('/api/memberCard', {
                     params: {
-                        sort: 'sortNumber,updatedDate',
-                        order: 'asc,desc',
+                        sort: 'sortNumber',
+                        order: 'asc',
                         memberId: member.id
                     }
                 }) .then((response) => {
@@ -516,6 +590,24 @@
                     open();
                 }
             },
+            openExchangePointsModal(row) {
+                const open = ()=> {
+                    this.$refs.exchangePointsForm.resetFields();
+                    row.memberCardTypeName = this.memberCardTypes.find((d)=>d.id === row.memberCardTypeId).name
+                    this.form.exchangePoints.memberCard = row;
+                    this.form.exchangePoints.data.memberCardId = row.id
+                    this.form.exchangePoints.modal = true;
+                }
+                if(row.logicallyDeleted) {
+                    this.$Modal.confirm({
+                        title: '系统消息',
+                        content: '当前会员卡已停用，是否继续兑换？',
+                        onOk: open
+                    });
+                } else {
+                    open();
+                }
+            },
             openChangePointsModal(row) {
                 const open = ()=> {
                     this.$refs.pointsForm.resetFields();
@@ -573,6 +665,23 @@
                         this.clearFormLoading(this.form.points);
                     }
                 })
+            },
+            exchangePoints() {
+                if(this.form.exchangePoints.type === 'toBalance') {
+                    this.$refs.exchangePointsForm.validate((valid) => {
+                        if (valid) {
+                            util.ajax.post(`/api/memberCard/exchangePoints/toBalance/${this.form.exchangePoints.data.memberCardId}`
+                                , this.form.exchangePoints.data)
+                                .then(()=>{
+                                    this.$Message.success('积分兑换成功');
+                                    this.loadData(this.member);
+                                    this.form.exchangePoints.modal = false;
+                                })
+                        } else {
+                            this.clearFormLoading(this.form.exchangePoints);
+                        }
+                    })
+                }
             }
         },
         mounted() {

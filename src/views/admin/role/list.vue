@@ -62,10 +62,9 @@ export default {
                 ],
                 actions: [
                     (h, params)=> {
-                        return h('Button', {
-                            props: {
-                                type: 'warning',
-                                size: 'small'
+                        return h('a', {
+                            attr: {
+                                href: 'javascript:void(0)'
                             },
                             style: {
                                 marginRight: '5px'

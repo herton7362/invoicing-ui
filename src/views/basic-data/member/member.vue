@@ -161,7 +161,6 @@
                                 type: 'expand',
                                 width: 50,
                                 render: (h, params) => h(MemberCard, {
-                                    ref: 'memberCard',
                                     props: {
                                         member: params.row
                                     }

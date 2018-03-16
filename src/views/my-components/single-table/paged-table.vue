@@ -21,7 +21,8 @@
             <Table ref="table" :columns="table.columns" :data="table.data" :height="height" :width="width"></Table>
         </Row>
         <Row class="margin-top-medium">
-            <Page :total="table.total"
+            <Page v-if="page"
+                  :total="table.total"
                   @on-change="onPageChange"
                   @on-page-size-change="onPageSizeChange" show-sizer show-elevator></Page>
         </Row>
@@ -81,7 +82,11 @@
                 default: true
             },
             height: Number,
-            width: Number
+            width: Number,
+            page: {
+                type: Boolean,
+                default: true
+            }
         },
         data() {
             const columns = [...this.columns];
@@ -161,7 +166,7 @@
                 util.ajax.get(url, {
                     params: {
                         currentPage: this.table.currentPage,
-                        pageSize: this.table.pageSize,
+                        pageSize: this.page? this.table.pageSize: 10000,
                         ...this.tableTransformQueryParams(this.table.queryParams),
                         ...this.defaultQueryParams
                     }

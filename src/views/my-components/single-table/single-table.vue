@@ -16,7 +16,8 @@
                      :columns="columns"
                      @on-load="onLoadGrid"
                      :height="height"
-                     :width="width">
+                     :width="width"
+                     :page="page">
             <template slot="query-form" slot-scope="props">
                 <slot name="query-form" :params="props.params">
 
@@ -128,7 +129,11 @@
                 default: 80
             },
             height: Number,
-            width: Number
+            width: Number,
+            page: {
+                type: Boolean,
+                default: true
+            }
         },
         data() {
             return {

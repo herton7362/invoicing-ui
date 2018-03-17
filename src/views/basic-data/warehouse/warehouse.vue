@@ -193,7 +193,7 @@
                         this.form.data.shortname = name;
                     }
                     if(!this.form.data.pinyin) {
-                        this.form.data.pinyin = name;
+                        this.form.data.pinyin = util.getFirstPinyinLetter(name);
                     }
                 }
             }

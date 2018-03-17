@@ -1,5 +1,6 @@
 import axios from 'axios';
 import env from '../../build/env';
+import firstletter from './pinyin_firstletter';
 
 let util = {
 
@@ -406,6 +407,23 @@ util.dateFormatPretty = function(date) {
         return (longtime+" error ");
     }
 };
+
+
+util.getFirstPinyinLetter = function(str) {
+    if(!str || /^ +$/g.test(str)) return '';
+    let result = [];
+    for(var i=0; i<str.length; i++)
+    {
+        var unicode = str.charCodeAt(i);
+        var ch = str.charAt(i);
+        if(unicode >= 19968 && unicode <= 40869)
+        {
+            ch = firstletter.all.charAt(unicode-19968);
+        }
+        result.push(ch);
+    }
+    return result.join('').toLowerCase();
+}
 
 // util.onWheel = function (ele, callback) {
 //     ele.addEventListener('mousewheel', function (e) {

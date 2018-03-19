@@ -150,10 +150,10 @@
             return {
                 table: {
                     columns: [
-                        {title:'单位名称', width: 200, render: (h, params) => {
+                        {title:'编号/名称', width: 200, render: (h, params) => {
                             return h('div', [
                                 h('p', params.row.code),
-                                h('p', params.row.name)
+                                h('p', {class: 'margin-top-small'}, params.row.name)
                             ])
                         }},
                         {title: ' ', width: 80, align: 'center', render: (h, params) => {

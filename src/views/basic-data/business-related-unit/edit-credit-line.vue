@@ -4,16 +4,16 @@
 
 <template>
     <Modal v-model="form.modal"
-           title="期初应收应付款"
+           title="信用额度设置"
            :loading="form.loading"
            @on-ok="save"
            :width="400">
         <Form ref="form" :model="form.data" :rules="form.rule" :label-width="90">
-            <FormItem label="期初应收款" prop="openingReceivableAmount">
-                <InputNumber v-model="form.data.openingReceivableAmount" autofocus placeholder="请输入期初应收款" style="width: 100%;"/>
+            <FormItem prop="creditLineEnable">
+                <Checkbox v-model="form.data.creditLineEnable">启用信用额度管理</Checkbox>
             </FormItem>
-            <FormItem label="期初应付款" prop="openingPayableAmount">
-                <InputNumber v-model="form.data.openingPayableAmount" placeholder="请输入期初应付款" style="width: 100%;"/>
+            <FormItem label="信用额度" prop="creditLine">
+                <InputNumber v-model="form.data.creditLine" placeholder="请输入信用额度" :disabled="!form.data.creditLineEnable" style="width: 100%;"/>
             </FormItem>
         </Form>
     </Modal>
@@ -30,15 +30,12 @@
                     loading: true,
                     data: {
                         id: null,
-                        openingReceivableAmount: null,
-                        openingPayableAmount: null
+                        creditLineEnable: null,
+                        creditLine: null
                     },
                     rule: {
-                        openingReceivableAmount: [
-                            { type: 'number', required: true, message: '请填写期初应收款', trigger: 'blur' }
-                        ],
-                        openingPayableAmount: [
-                            { type: 'number', required: true, message: '请填写期初应付款', trigger: 'blur' }
+                        creditLine: [
+                            { type: 'number', required: true, message: '请填写信用额度', trigger: 'blur' }
                         ]
                     }
                 }
@@ -51,10 +48,14 @@
             },
             save() {
                 this.$refs.form.validate((valid) => {
+                    if(this.form.data.creditLineEnable && this.form.data.creditLine < this.form.data.nowReceivableAmount) {
+                        this.$Message.warning(`信用额度不能小于单位的应收账款[${this.form.data.nowReceivableAmount}]`);
+                        valid = false;
+                    }
                     if (valid) {
-                        util.ajax.post(`/api/businessRelatedUnit/editReceivablePayableAmount/${this.form.data.id}`, {
-                            openingReceivableAmount: this.form.data.openingReceivableAmount,
-                            openingPayableAmount: this.form.data.openingPayableAmount
+                        util.ajax.post(`/api/businessRelatedUnit/editCreditLine/${this.form.data.id}`, {
+                            creditLineEnable: this.form.data.creditLineEnable,
+                            creditLine: this.form.data.creditLine
                         }).then(()=>{
                             this.$Message.success('操作成功');
                             this.form.modal = false;

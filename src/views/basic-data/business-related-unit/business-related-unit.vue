@@ -1,9 +1,10 @@
 <style lang="less">
     @import '../../../styles/common.less';
+    @import 'business-related-unit.less';
 </style>
 
 <template>
-    <Card>
+    <Card class="business-related-unit">
         <single-table ref="table"
                       :columns="table.columns"
                       :actions="table.actions"
@@ -126,6 +127,10 @@
                 </FormItem>
             </template>
         </single-table>
+        <edit-receivable-payable-amount
+                ref="editReceivablePayableAmount"
+                @on-save-success="reloadGrid"></edit-receivable-payable-amount>
+        <edit-credit-line ref="editCreditLine" @on-save-success="reloadGrid"></edit-credit-line>
     </Card>
 </template>
 
@@ -133,58 +138,163 @@
     import util from '@/libs/util';
     import SingleTable from '@/views/my-components/single-table/single-table.vue';
     import EditReceivablePayableAmount from './edit-receivable-payable-amount.vue';
+    import EditCreditLine from './edit-credit-line.vue';
 
     export default {
         components: {
-            SingleTable
+            SingleTable,
+            EditReceivablePayableAmount,
+            EditCreditLine
         },
         data() {
             return {
                 table: {
                     columns: [
-                        {key:'code', title:'单位编号'},
-                        {key:'name', title:'单位名称'},
-                        {title:'类型', align: 'center', render:(h, params) => {
-                                if(params.row.type === 'CUSTOMER') {
-                                    return h('Tooltip', {
+                        {title:'单位名称', width: 200, render: (h, params) => {
+                            return h('div', [
+                                h('p', params.row.code),
+                                h('p', params.row.name)
+                            ])
+                        }},
+                        {title: ' ', width: 80, align: 'center', render: (h, params) => {
+                            if(params.row.type === 'CUSTOMER') {
+                                return h('div', [
+                                    h('Icon', {
                                         props: {
-                                            content: '客户',
-                                            placement: "top"
+                                            type: 'person-stalker',
+                                            size: 20
                                         }
-                                    }, [
-                                        h('Icon', {
-                                            props: {
-                                                type: 'person-stalker',
-                                                size: 20
-                                            }
-                                        })
-                                    ]);
-                                } else{
-                                    return  h('Tooltip', {
+                                    }),
+                                    h('p', {class: 'margin-top-small'}, '客户')
+                                ]);
+                            } else{
+                                return h('Tooltip', [
+                                    h('Icon', {
                                         props: {
-                                            content: '供货商',
-                                            placement: "top"
+                                            type: 'android-car',
+                                            size: 20
                                         }
-                                    }, [
-                                        h('Icon', {
-                                            props: {
-                                                type: 'android-car',
-                                                size: 20
-                                            }
-                                        })
-                                    ]);
+                                    }),
+                                    h('p', {class: 'margin-top-small'}, '供货商')
+                                ]);
+                            }
+                        }},
+                        {key:'openingReceivableAmount', title:'应收/应付款', align: 'center', render: (h, params) => {
+                            return h('div', {class: 'amount-list'}, [
+                                h('div', {class: 'amount'}, [
+                                    h('div', {class: 'mini-counts'}, params.row.openingReceivableAmount),
+                                    h('div', [
+                                        h('span', {class: 'text-highlight'}, '期初'),
+                                        h('span', '应收'),
+                                    ])
+                                ]),
+                                h('div', {class: 'amount'}, [
+                                    h('div', {class: 'mini-counts'}, params.row.nowReceivableAmount),
+                                    h('div', [
+                                        h('span', {class: 'text-highlight'}, '当前'),
+                                        h('span', '应收'),
+                                    ])
+                                ]),
+                                h('div', {class: 'amount'}, [
+                                    h('div', {class: 'mini-counts'}, params.row.openingPayableAmount),
+                                    h('div', [
+                                        h('span', {class: 'text-highlight'}, '期初'),
+                                        h('span', '应付'),
+                                    ])
+                                ]),
+                                h('div', {class: 'amount'}, [
+                                    h('div', {class: 'mini-counts'}, params.row.nowPayableAmount),
+                                    h('div', [
+                                        h('span', {class: 'text-highlight'}, '当前'),
+                                        h('span', '应付'),
+                                    ])
+                                ]),
+                            ])
+                        }},
+                        {title:'信用额度', width: 180, align: 'center', render:(h, params) => {
+                            if(params.row.creditLineEnable) {
+                                let available = params.row.creditLine - params.row.nowReceivableAmount;
+                                let usedRate = (params.row.nowReceivableAmount / params.row.creditLine) * 100;
+                                let availableRate = (available / params.row.creditLine) * 100;
+                                if(availableRate < 0) {
+                                    availableRate = 0;
+                                    usedRate = 100;
                                 }
-                            }},
-                        {key:'openingReceivableAmount', title:'期初应收款'},
-                        {key:'openingPayableAmount', title:'期初应付款'},
-                        {key:'nowReceivableAmount', title:'当前应收款'},
-                        {key:'nowPayableAmount', title:'当前应付款'},
-                        {key:'creditLine', title:'信用额度'},
-                        {title:'可用额度'},
-                        {key:'mobile', title:'手机'},
-                        {key:'linkman', title:'联系人'},
-                        {key:'priceLevel', title:'价格等级'},
-                        {title: '状态', render:(h, params) => {
+                                return h('i-circle', {
+                                    props: {
+                                        size: 140,
+                                        percent: usedRate,
+                                        strokeColor: available / params.row.creditLine < 0.1? '#ff5500': '#43a3fb'
+                                    },
+                                    style: {
+                                        margin: '10px 0'
+                                    }
+                                }, [
+                                    h('p', `可用额度`),
+                                    h('p', {
+                                        class: ['available-amount', 'margin-top-small'],
+                                        style: `color: ${available < 0?'#ff5500': ''}`
+                                    }, available),
+                                    h('p', {class: 'margin-top-small'}, `剩余${availableRate}%`),
+                                    h('Button', {
+                                        props: {
+                                            size: 'small',
+                                            type: 'ghost',
+                                            shape: 'circle'
+                                        },
+                                        class: 'margin-top-small',
+                                        on: {
+                                            click: ()=> {
+                                                this.$refs.editCreditLine.open(params.row);
+                                            }
+                                        }
+                                    }, '设置')
+                                ])
+                            } else {
+                                return h('div', [
+                                    h('p', {style: 'color: #999'}, '未启用'),
+                                    h('Button', {
+                                        props: {
+                                            size: 'small',
+                                            type: 'ghost',
+                                            shape: 'circle'
+                                        },
+                                        class: 'margin-top-small',
+                                        on: {
+                                            click: ()=> {
+                                                this.$refs.editCreditLine.open(params.row);
+                                            }
+                                        }
+                                    }, '设置')
+
+                                ])
+                            }
+                        }},
+                        {title:'联系方式', render:(h, params) => {
+                            const labels = [];
+                            if(params.row.linkman) {
+                                labels.push(h('span', {class: 'nowrap'}, params.row.linkman));
+                            }
+
+                            if(params.row.mobile || params.row.telephone) {
+                                const tel = [];
+                                tel.push(h('p', {class: 'nowrap'}, 'Tel: '));
+                                if(params.row.mobile) {
+                                    tel.push(h('p', {class: 'nowrap'}, params.row.mobile));
+                                }
+                                if(params.row.telephone) {
+                                    tel.push(h('p', {class: 'nowrap'}, params.row.telephone));
+                                }
+                                labels.push(h('p', {class: 'nowrap'}, tel));
+                            }
+
+                            if(params.row.telephone) {
+                                labels.push(h('p', {class: 'nowrap'}, `E-mail: ${params.row.email}`));
+                            }
+                            return h('div', {class: 'link-type'}, labels)
+                        }},
+                        {key:'priceLevel', width: 120, title:'价格等级'},
+                        {title: '状态', width: 80, render:(h, params) => {
                                 if(params.row.logicallyDeleted) {
                                     return h('div', [
                                         h('Icon', {
@@ -255,48 +365,17 @@
                                     h('DropdownItem', {
                                         nativeOn: {
                                             click:()=>{
-                                                this.$Modal.confirm({
-                                                    loading: true,
-                                                    render: (h) => h(EditReceivablePayableAmount, {
-                                                        props: {
-                                                            openingReceivableAmount: params.row.openingReceivableAmount,
-                                                            openingPayableAmount: params.row.openingPayableAmount
-                                                        },
-                                                        on: {
-                                                            'on-openingReceivableAmount-change': (val)=>{
-                                                                params.row.openingReceivableAmount = val;
-                                                            },
-                                                            'on-openingPayableAmount-change': (val)=>{
-                                                                params.row.openingPayableAmount = val;
-                                                            },
-                                                            mounted (ref) {
-                                                                params.row._EditReceivablePayableAmount = ref;
-                                                            }
-                                                        }
-                                                    }),
-                                                    onOk ()  {
-                                                        params.row._EditReceivablePayableAmount.$refs.form.validate((valid) => {
-                                                            if (valid) {
-                                                                util.ajax.post(`/api/accountingSubject/editReceivablePayableAmount/${params.row.id}`, {
-                                                                    openingReceivableAmount: params.row.openingReceivableAmount,
-                                                                    openingPayableAmount: params.row.openingPayableAmount
-                                                                }).then(()=>{
-                                                                    this.$Message.success('操作成功');
-                                                                    this.$refs.table.reloadGrid();
-                                                                })
-                                                            } else {
-                                                                console.log(this)
-                                                                this.loading = false;
-                                                                params.row._EditReceivablePayableAmount.$nextTick(() => {
-                                                                    //this.loading = true;
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                })
+                                                this.$refs.editReceivablePayableAmount.open(params.row);
                                             }
                                         }
                                     }, '修改期初应收应付款'),
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                this.$refs.editCreditLine.open(params.row);
+                                            }
+                                        }
+                                    }, '设置信用额度')
                                 ])
                             ])
                         }
@@ -351,6 +430,9 @@
                         this.form.data.pinyin = util.getFirstPinyinLetter(name);
                     }
                 }
+            },
+            reloadGrid() {
+                this.$refs.table.reloadGrid();
             }
         },
         mounted() {

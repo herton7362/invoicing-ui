@@ -151,7 +151,7 @@
                           silent = false // 不触发事件
                       } = {}) {
                 this.table.currentPage = 1;
-                this.reloadGrid(silent);
+                this.reloadGrid({silent});
             },
             reloadGrid({
                            silent = false // 不触发事件

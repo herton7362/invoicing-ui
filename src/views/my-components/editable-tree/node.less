@@ -1,0 +1,27 @@
+.editable-tree-node {
+  display: inline-block;
+  width: 100%;
+  &-tools {
+    display: inline-block;
+    float: right;
+    margin-right: 24px;
+  }
+
+  &-operator {
+    color: #666;
+  }
+
+  &-operator {
+    margin-right: 8px;
+  }
+
+  &-operator:hover {
+    color: #333;
+  }
+
+  &-root {
+    .editable-tree-node-tools {
+      margin-right: 46px;
+    }
+  }
+}

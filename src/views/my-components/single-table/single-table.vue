@@ -241,12 +241,12 @@
             loadGrid ({
                           silent = false // 不触发事件
             } = {}) {
-                this.$refs.table.loadGrid(silent);
+                this.$refs.table.loadGrid({silent});
             },
             reloadGrid({
                            silent = false // 不触发事件
                        } = {}) {
-                this.$refs.table.loadGrid(silent);
+                this.$refs.table.loadGrid({silent});
             },
             clearData() {
                 this.$refs.table.clearData();

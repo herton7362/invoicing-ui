@@ -11,7 +11,7 @@
                     <Icon type="plus" :size="14"></Icon>
                 </a>
                  <div slot="content">
-                     <Form ref="form" :model="form.data" :rules="form.rule" :label-width="0">
+                     <Form ref="addForm" :model="form.data" :rules="form.rule" :label-width="0">
                          <FormItem prop="parentId">
                              <RadioGroup v-model="form.data.parentId">
                                  <Radio :label="value.parentId" :disabled="value._root">同级</Radio>
@@ -21,7 +21,7 @@
                          <FormItem prop="name">
                              <Input v-model="form.data.name" placeholder="请输入名称"/>
                          </FormItem>
-                         <Button type="primary" long @click="save" :loading="form.loading">保存</Button>
+                         <Button type="primary" long @click="save('addForm')" :loading="form.loading">保存</Button>
                      </Form>
                  </div>
             </Poptip>
@@ -30,16 +30,16 @@
                     <Icon type="edit" :size="14"></Icon>
                 </a>
                 <div slot="content">
-                     <Form ref="form" :model="form.data" :rules="form.rule" :label-width="0">
+                     <Form ref="editForm" :model="form.data" :rules="form.rule" :label-width="0">
                          <FormItem prop="parentId">
-                             <Select v-model="form.data.parentId" placeholder="选择上级">
+                             <Select v-model="form.data.parentId" clearable placeholder="选择上级">
                                  <Option :value="row.id" v-for="row in treeData">{{row.title}}</Option>
                              </Select>
                          </FormItem>
                          <FormItem prop="name">
                              <Input v-model="form.data.name" placeholder="请输入名称"/>
                          </FormItem>
-                         <Button type="primary" long @click="save" :loading="form.loading">保存</Button>
+                         <Button type="primary" long @click="save('editForm')" :loading="form.loading">保存</Button>
                      </Form>
                  </div>
             </Poptip>
@@ -90,9 +90,9 @@
             onNodeClick() {
                 this.$emit('on-node-click');
             },
-            save() {
+            save(form) {
                 this.form.loading = true;
-                this.$refs.form.validate((valid) => {
+                this.$refs[form].validate((valid) => {
                     if (valid) {
                         util.ajax.post(`/api/${this.domainUrl}`, this.form.data).then(() => {
                             this.$Message.success('保存成功');

@@ -1,0 +1,50 @@
+.property-group {
+  &-list {
+    font-size: 14px;
+    color: rgba(0,0,0,.65);
+    padding: 0 12px;
+    &-item {
+      padding-top: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e8e8e8;
+      display: block;
+      align-items: center;
+
+      &-title {
+        h4 {
+          color: rgba(0,0,0,.85);
+          font-weight: normal;
+          margin-bottom: 12px;
+          font-size: 16px;
+          line-height: 24px;
+        }
+      }
+
+      &-description {
+        color: rgba(0,0,0,.45);
+        font-size: 14px;
+        line-height: 22px;
+      }
+
+      &-meta {
+        display: flex;
+        align-items: flex-start;
+        flex: 1 1 0%;
+        margin-bottom: 16px;
+      }
+
+      &-content {
+        flex: 1 0 0%;
+        line-height: 22px;
+        max-width: 720px;
+      }
+
+      &-action {
+        flex: 0 0 auto;
+      }
+    }
+    &-extra-wrap {
+      display: flex;
+    }
+  }
+}

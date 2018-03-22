@@ -21,8 +21,8 @@
                 </FormItem>
                 </Col>
             </Row>
-            <FormItem label="属性" prop="groupPropertyIds">
-                <CheckboxGroup v-model="form.data.groupPropertyIds">
+            <FormItem label="属性" prop="goodsPropertyIds">
+                <CheckboxGroup v-model="form.data.goodsPropertyIds">
                     <Checkbox :key="goodsProperty.id"
                               :label="goodsProperty.id"
                               v-for="goodsProperty in goodsProperties">{{goodsProperty.name}}</Checkbox>
@@ -31,7 +31,7 @@
             <FormItem :class="{'property-group-edit-category-expanded': !hideMoreCategory}"
                       :key="id"
                       :label="getGroupPropertyName(id) + '属性'"
-                      v-for="id in form.data.groupPropertyIds">
+                      v-for="id in form.data.goodsPropertyIds">
                 <Tag :ref="id + 'isNull_tag'"
                      size="small"
                      checkable
@@ -53,7 +53,7 @@
                    @click="hideMoreCategory = !hideMoreCategory">
                     {{hideMoreCategory? '展开': '收起'}} <Icon type="chevron-down"></Icon>
                 </a>
-                <CheckboxGroup v-model="form.data.groupPropertyValueIds">
+                <CheckboxGroup v-model="form.data.goodsPropertyValueIds">
                     <Checkbox :key="propertyValue.id"
                               :label="propertyValue.id"
                               v-for="propertyValue in propertyValues[id]">{{propertyValue.name}}</Checkbox>
@@ -78,8 +78,8 @@
                         id: null,
                         name: null,
                         remark: null,
-                        groupPropertyIds: [],
-                        groupPropertyValueIds: []
+                        goodsPropertyIds: [],
+                        goodsPropertyValueIds: []
                     },
                     rule: {
                         name: [
@@ -178,7 +178,7 @@
             this.loadProperties();
         },
         watch: {
-            'form.data.groupPropertyIds': {
+            'form.data.goodsPropertyIds': {
                 handler(val) {
                     val.forEach((v)=>{
                         if(this.goodsPropertyCategories[v] === undefined) {

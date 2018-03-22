@@ -185,8 +185,9 @@
                                 })
                                 return span;
                             }},
-                        {key: 'startBusinessTime', title: '开始营业时间'},
-                        {key: 'closeBusinessTime', title: '关闭营业时间'},
+                        {title: '营业时间', width: 150, align: 'center', render: (h, params) => {
+                            return h('span', `${params.row.startBusinessTime} - ${params.row.closeBusinessTime}`)
+                        }},
                         {title:'收银台',align: 'center',
                             render: (h, params) => {
                                 let span = h('a', {

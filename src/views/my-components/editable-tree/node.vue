@@ -33,7 +33,7 @@
                      <Form ref="editForm" :model="form.data" :rules="form.rule" :label-width="0">
                          <FormItem prop="parentId">
                              <Select v-model="form.data.parentId" clearable placeholder="选择上级">
-                                 <Option :value="row.id" v-for="row in treeData">{{row.title}}</Option>
+                                 <Option :key="row.id" :value="row.id" v-for="row in treeData">{{row.title}}</Option>
                              </Select>
                          </FormItem>
                          <FormItem prop="name">

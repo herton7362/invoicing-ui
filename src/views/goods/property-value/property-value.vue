@@ -45,9 +45,9 @@
                         <FormItem label="备注" prop="remark">
                             <Input v-model="props.data.remark" placeholder="请输入备注"/>
                         </FormItem>
-                        <FormItem label="组" prop="goodsPropertyCategoryIdArray">
+                        <FormItem label="类别" prop="goodsPropertyCategoryIdArray">
                             <CheckboxGroup v-model="props.data.goodsPropertyCategoryIdArray">
-                                <Checkbox :label="item.id" v-for="item in group.data">{{item.name}}</Checkbox>
+                                <Checkbox :key="item.id" :label="item.id" v-for="item in group.data">{{item.name}}</Checkbox>
                             </CheckboxGroup>
                         </FormItem>
                     </template>
@@ -81,7 +81,7 @@
                     columns: [
                         {key: 'barcode', title: '条码名称'},
                         {key: 'name', title: '属性名称'},
-                        {title: '组', render: (h, params) => {
+                        {title: '类别', render: (h, params) => {
                             const tags = [];
                             let group;
                             if(params.row.goodsPropertyCategoryId) {

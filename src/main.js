@@ -97,6 +97,9 @@ util.executeGenerator(function* () {
                 // 对响应数据做点什么
                 return response;
             }, (error) => {
+                if(error.__CANCEL__) {
+                    return;
+                }
                 // 对响应错误做点什么
                 if(500 === error.response.status) {
                     this.$Message.error('系统内部错误，请联系系统管理员');

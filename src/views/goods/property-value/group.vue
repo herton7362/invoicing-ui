@@ -3,20 +3,21 @@
 </style>
 <template>
     <div class="goods-property-group">
-        <label class="goods-property-group-label" style="width: 80px;">属性组</label>
+        <label class="goods-property-group-label" style="width: 80px;">属性类别</label>
         <Tag :ref="`${item.id}_tag`"
              checkable
+             type="border"
              :checked="item._checked"
              v-for="item in tag.data"
              :key="item.id"
              @click.native="onCheck(item)">
             {{ item.name }}&nbsp;&nbsp;
-            <Poptip placement="right" :width="200" transfer v-model="item.modal">
+            <Poptip placement="bottom" :width="200" transfer v-model="item.modal">
                 <Icon type="ios-compose-outline" @click.native.stop="loadOne(item)"></Icon>
                 <div slot="content">
                     <Form :ref="`${item.id}_form`" :model="form.data" :rules="form.rule" :label-width="0">
                         <FormItem prop="name">
-                            <Input v-model="form.data.name" placeholder="请输入名称"/>
+                            <Input v-model="form.data.name" placeholder="请输入名称" autofocus/>
                         </FormItem>
                         <Button type="primary" long @click="save(item)" :loading="form.loading">保存</Button>
                     </Form>
@@ -26,12 +27,12 @@
                 <Icon type="ios-close-empty"></Icon>
             </Poptip>
         </Tag>
-        <Poptip placement="right" :width="200" transfer v-model="form.modal">
-            <Button icon="ios-plus-empty" type="dashed" size="small" @click="newOne">添加组</Button>
+        <Poptip placement="bottom" :width="200" transfer v-model="form.modal">
+            <Button icon="ios-plus-empty" type="dashed" size="small" @click="newOne">添加类别</Button>
             <div slot="content">
                 <Form ref="form" :model="form.data" :rules="form.rule" :label-width="0">
                     <FormItem prop="name">
-                        <Input v-model="form.data.name" placeholder="请输入名称"/>
+                        <Input v-model="form.data.name" placeholder="请输入名称" autofocus/>
                     </FormItem>
                     <Button type="primary" long @click="save()" :loading="form.loading">保存</Button>
                 </Form>

@@ -1,0 +1,23 @@
+.property-group-edit {
+  .ivu-tag {
+    margin-right: 8px;
+  }
+  .ivu-tag-checked {
+    border-color: #2d8cf0;
+    background-color: #2d8cf0 !important;
+    .ivu-tag-text,
+    .ivu-icon-ios-close-empty{
+      color: #fff;
+    }
+  }
+  .ivu-icon-chevron-down{
+    transition: all .2s ease-in-out;
+  }
+
+  &-category-expanded{
+    max-height: 200px;
+    .ivu-icon-chevron-down{
+      transform: rotate(180deg);
+    }
+  }
+}

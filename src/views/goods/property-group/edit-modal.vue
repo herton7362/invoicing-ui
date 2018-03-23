@@ -61,6 +61,7 @@
                 <a href="javascript:void(0)"><Icon type="ios-plus-empty"></Icon> 添加属性值</a>
             </FormItem>
         </Form>
+        <Spin size="large" fix v-if="form.data.loading"></Spin>
     </Modal>
 </template>
 
@@ -79,7 +80,8 @@
                         name: null,
                         remark: null,
                         goodsPropertyIds: [],
-                        goodsPropertyValueIds: []
+                        goodsPropertyValueIds: [],
+                        loading: false
                     },
                     rule: {
                         name: [
@@ -102,6 +104,27 @@
                 this.goodsPropertyCategories = {};
                 this.propertyValueQueryParam = {};
                 this.form.modal = true;
+            },
+            openEditModal(row) {
+                this.$refs.form.resetFields();
+                this.propertyValues = {};
+                this.goodsPropertyCategories = {};
+                this.propertyValueQueryParam = {};
+                util.ajax.get(`/api/goodsPropertyGroup/${row.id}`).then((response)=>{
+                    this.form.data = response.data;
+                    this.form.data.goodsPropertyResults.forEach((result)=>{
+                        result.goodsPropertyValueResults.forEach((sub)=>{
+                            if(this.propertyValueQueryParam[sub.goodsPropertyId] === undefined) {
+                                this.$set(this.propertyValueQueryParam, sub.goodsPropertyId, {goodsPropertyCategoryId: []});
+                            }
+                            if(sub.goodsPropertyCategoryId) {
+                                this.addPropertyValueQueryParam(sub.goodsPropertyId, sub.goodsPropertyCategoryId);
+                            }
+                        });
+                        this.loadPropertyValues(result.id);
+                    });
+                    this.form.modal = true;
+                });
             },
             loadProperties() {
                 util.ajax.get('/api/goodsProperty').then((response)=>{
@@ -139,17 +162,24 @@
                 return false;
             },
             checkTag(id, goodsPropertyCategoryId) {
-                const array = this.propertyValueQueryParam[id].goodsPropertyCategoryId;
                 if(this.$refs[id + goodsPropertyCategoryId + '_tag'][0].isChecked) {
-                    if(!array.includes(goodsPropertyCategoryId)) {
-                        array.push(goodsPropertyCategoryId)
-                    }
+                    this.addPropertyValueQueryParam(id, goodsPropertyCategoryId);
                 } else {
-                    if(array.includes(goodsPropertyCategoryId)) {
-                        array.splice(array.findIndex((a)=>a === goodsPropertyCategoryId), 1);
-                    }
+                    this.removePropertyValueQueryParam(id, goodsPropertyCategoryId);
                 }
                 this.loadPropertyValues(id);
+            },
+            addPropertyValueQueryParam(id, goodsPropertyCategoryId) {
+                const array = this.propertyValueQueryParam[id].goodsPropertyCategoryId;
+                if(!array.includes(goodsPropertyCategoryId)) {
+                    array.push(goodsPropertyCategoryId)
+                }
+            },
+            removePropertyValueQueryParam(id, goodsPropertyCategoryId) {
+                const array = this.propertyValueQueryParam[id].goodsPropertyCategoryId;
+                if(array.includes(goodsPropertyCategoryId)) {
+                    array.splice(array.findIndex((a)=>a === goodsPropertyCategoryId), 1);
+                }
             },
             save() {
                 this.$refs.form.validate((valid) => {
@@ -182,13 +212,16 @@
                 handler(val) {
                     val.forEach((v)=>{
                         if(this.goodsPropertyCategories[v] === undefined) {
-                            this.$set(this.propertyValueQueryParam, v, {goodsPropertyCategoryId: []});
+                            this.form.data.loading = true;
+                            if(this.propertyValueQueryParam[v] === undefined)
+                                this.$set(this.propertyValueQueryParam, v, {goodsPropertyCategoryId: []});
                             this.loadPropertyCategories(v).then((response)=>{
                                 // 如果没有分组则直接加载属性值
                                 if(response.data.length === 0) {
                                     this.$refs[v + 'isNull_tag'][0].isChecked = true;
                                     this.$nextTick(()=>this.checkTag(v, 'isNull'));
                                 }
+                                this.form.data.loading = false;
                             });
                         }
                     })

@@ -71,7 +71,7 @@ export default {
                     })
                         .then((response)=>{
                             Cookies.set('user', this.form.userName);
-                            this.$store.commit('setAvator', 'https://www.dldjshop.com/attachment/download/2c911f2460a044dc0160e4464d790002');
+                            this.$store.commit('setAvator', 'http://www.uimaker.com/uploads/allimg/20141103/1414976308518231.jpg');
                             this.$store.commit('setAccessToken', response.data);
                             window.location.reload();
                         })

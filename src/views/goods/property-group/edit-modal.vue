@@ -58,7 +58,6 @@
                               :label="propertyValue.id"
                               v-for="propertyValue in propertyValues[id]">{{propertyValue.name}}</Checkbox>
                 </CheckboxGroup>
-                <a href="javascript:void(0)"><Icon type="ios-plus-empty"></Icon> 添加属性值</a>
             </FormItem>
         </Form>
         <Spin size="large" fix v-if="form.data.loading"></Spin>
@@ -100,6 +99,8 @@
             openNewModal() {
                 this.$refs.form.resetFields();
                 this.form.data.id = null;// 解决清空表单id不会删除问题
+                this.form.data.goodsPropertyIds = [];
+                this.form.data.goodsPropertyValueIds = [];
                 this.propertyValues = {};
                 this.goodsPropertyCategories = {};
                 this.propertyValueQueryParam = {};
@@ -132,6 +133,10 @@
                 });
             },
             loadPropertyValues(propertyId) {
+                if(this.propertyValueQueryParam[propertyId].goodsPropertyCategoryId.length === 0) {
+                    this.$set(this.propertyValues, propertyId, []);
+                    return;
+                }
                 util.ajax.get('/api/goodsPropertyValue', {
                     params: {
                         goodsPropertyId: propertyId,

@@ -6,7 +6,7 @@ let util = {
 
 };
 util.title = function (title) {
-    title = title || '鼎骏管理系统';
+    title = title || '进销存管理系统';
     window.document.title = title;
 };
 

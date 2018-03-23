@@ -17,10 +17,14 @@
                     </div>
                     <div class="property-group-list-item-meta">
                         <div class="property-group-list-item-content">
-                            <p class="property-group-list-item-content-row" v-for="property in row.goodsPropertyResults">
+                            <Row class="property-group-list-item-content-row" v-for="property in row.goodsPropertyResults">
+                                <Col :span="2">
                                 <label class="property-group-list-item-content-title">{{property.name}}</label>
+                                </Col>
+                                <Col :span="22">
                                 <Tag :key="value.id" color="blue" v-for="value in property.goodsPropertyValueResults">{{value.name}}</Tag>
-                            </p>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
                     <div class="property-group-list-item-action">

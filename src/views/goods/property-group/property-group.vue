@@ -17,7 +17,7 @@
                     </div>
                     <div class="property-group-list-item-meta">
                         <div class="property-group-list-item-content">
-                            <Row class="property-group-list-item-content-row" v-for="property in row.goodsPropertyResults">
+                            <Row :key="property.id" class="property-group-list-item-content-row" v-for="property in row.goodsPropertyResults">
                                 <Col :span="2">
                                 <label class="property-group-list-item-content-title">{{property.name}}</label>
                                 </Col>
@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div></div>
+        <Spin size="large" fix v-if="list.loading"></Spin>
         <edit-modal ref="editModal" @on-save-success="loadGrid"></edit-modal>
     </Card>
 </template>
@@ -51,6 +51,7 @@
         data() {
             return {
                 list: {
+                    loading: false,
                     data: []
                 }
             }
@@ -63,8 +64,10 @@
                 this.$refs.editModal.openEditModal(row);
             },
             loadGrid() {
+                this.list.loading = true;
                 util.ajax.get('/api/goodsPropertyGroup').then((response)=>{
                     this.list.data = response.data;
+                    this.list.loading = false;
                 });
             },
             remove(row) {

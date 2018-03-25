@@ -1,5 +1,5 @@
 <style lang="less">
-    @import './group.less';
+    @import './category.less';
 </style>
 <template>
     <div class="goods-property-group">

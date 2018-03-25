@@ -20,10 +20,10 @@
                 <p slot="title">
                     {{tree.selected.title}}属性值
                 </p>
-                <property-group ref="propertyGroup"
+                <property-category ref="propertyGroup"
                                 :goods-property="tree.selected"
                                 @on-load="onLoadGroup"
-                                @on-check="onTagCheck"></property-group>
+                                @on-check="onTagCheck"></property-category>
                 <single-table class="margin-top-medium"
                               ref="table"
                               :columns="table.columns"
@@ -61,13 +61,13 @@
     import util from '@/libs/util';
     import singleTable from '@/views/my-components/single-table/single-table.vue';
     import EditableTree from '@/views/my-components/editable-tree/editable-tree.vue'
-    import PropertyGroup from './group.vue';
+    import PropertyCategory from './category.vue';
 
     export default {
         components: {
             singleTable,
             EditableTree,
-            PropertyGroup
+            PropertyCategory
         },
         data() {
             return {

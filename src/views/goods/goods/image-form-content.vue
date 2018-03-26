@@ -14,13 +14,13 @@
                     name="attachments"
                     :on-success="handleCoverSuccess"
                     :action="'/attachment/upload' | baseUrl">
-                <div class="upload-button cover" v-if="!cover.file.id">
+                <div class="upload-button cover" v-if="!cover.file.attachmentId">
                     <Icon class="add-image-btn" type="plus-round"></Icon>
                     <div slot="tip" class="el-upload__tip">封面</div>
                 </div>
-                <div>
+                <div v-if="cover.file.attachmentId">
                     <template v-if="cover.file.status === 'finished'">
-                        <img width="100%" :src="'/attachment/download/' + cover.file.id | baseUrl">
+                        <img width="100%" :src="'/attachment/download/' + cover.file.attachmentId | baseUrl">
                         <div class="demo-upload-list-cover">
                             <Icon type="ios-eye-outline"></Icon>
                             <Icon type="ios-trash-outline"></Icon>
@@ -38,20 +38,48 @@
                         :show-upload-list="false"
                         :format="['jpg','jpeg','png']"
                         :max-size="1024"
-                        action="//jsonplaceholder.typicode.com/posts/">
-                    <div class="upload-button">
+                        name="attachments"
+                        :on-success="handleAttached1Success"
+                        :action="'/attachment/upload' | baseUrl">
+                    <div class="upload-button" v-if="!attached1.file.attachmentId">
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图1</div>
+                    </div>
+                    <div v-if="attached1.file.attachmentId">
+                        <template v-if="attached1.file.status === 'finished'">
+                            <img width="100%" :src="'/attachment/download/' + attached1.file.attachmentId | baseUrl">
+                            <div class="demo-upload-list-cover">
+                                <Icon type="ios-eye-outline"></Icon>
+                                <Icon type="ios-trash-outline"></Icon>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <Progress v-if="attached1.file.showProgress" :percent="attached1.file.percentage" hide-info></Progress>
+                        </template>
                     </div>
                 </Upload>
                 <Upload class="upload-wrap"
                         :show-upload-list="false"
                         :format="['jpg','jpeg','png']"
                         :max-size="1024"
-                        action="//jsonplaceholder.typicode.com/posts/">
-                    <div class="upload-button">
+                        name="attachments"
+                        :on-success="handleAttached2Success"
+                        :action="'/attachment/upload' | baseUrl">
+                    <div class="upload-button" v-if="!attached2.file.attachmentId">
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图2</div>
+                    </div>
+                    <div v-if="attached2.file.attachmentId">
+                        <template v-if="attached2.file.status === 'finished'">
+                            <img width="100%" :src="'/attachment/download/' + attached2.file.attachmentId | baseUrl">
+                            <div class="demo-upload-list-cover">
+                                <Icon type="ios-eye-outline"></Icon>
+                                <Icon type="ios-trash-outline"></Icon>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <Progress v-if="attached2.file.showProgress" :percent="attached2.file.percentage" hide-info></Progress>
+                        </template>
                     </div>
                 </Upload>
             </Row>
@@ -60,20 +88,48 @@
                         :show-upload-list="false"
                         :format="['jpg','jpeg','png']"
                         :max-size="1024"
-                        action="//jsonplaceholder.typicode.com/posts/">
-                    <div class="upload-button">
+                        name="attachments"
+                        :on-success="handleAttached3Success"
+                        :action="'/attachment/upload' | baseUrl">
+                    <div class="upload-button" v-if="!attached3.file.attachmentId">
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图3</div>
+                    </div>
+                    <div v-if="attached3.file.attachmentId">
+                        <template v-if="attached3.file.status === 'finished'">
+                            <img width="100%" :src="'/attachment/download/' + attached3.file.attachmentId | baseUrl">
+                            <div class="demo-upload-list-cover">
+                                <Icon type="ios-eye-outline"></Icon>
+                                <Icon type="ios-trash-outline"></Icon>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <Progress v-if="attached3.file.showProgress" :percent="attached3.file.percentage" hide-info></Progress>
+                        </template>
                     </div>
                 </Upload>
                 <Upload class="upload-wrap"
                         :show-upload-list="false"
                         :format="['jpg','jpeg','png']"
                         :max-size="1024"
-                        action="//jsonplaceholder.typicode.com/posts/">
-                    <div class="upload-button">
+                        name="attachments"
+                        :on-success="handleAttached4Success"
+                        :action="'/attachment/upload' | baseUrl">
+                    <div class="upload-button" v-if="!attached4.file.attachmentId">
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图4</div>
+                    </div>
+                    <div v-if="attached4.file.attachmentId">
+                        <template v-if="attached4.file.status === 'finished'">
+                            <img width="100%" :src="'/attachment/download/' + attached4.file.attachmentId | baseUrl">
+                            <div class="demo-upload-list-cover">
+                                <Icon type="ios-eye-outline"></Icon>
+                                <Icon type="ios-trash-outline"></Icon>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <Progress v-if="attached4.file.showProgress" :percent="attached4.file.percentage" hide-info></Progress>
+                        </template>
                     </div>
                 </Upload>
             </Row>
@@ -92,16 +148,61 @@
             return {
                 cover: {
                     file: {}
+                },
+                attached1: {
+                    file: {}
+                },
+                attached2: {
+                    file: {}
+                },
+                attached3: {
+                    file: {}
+                },
+                attached4: {
+                    file: {}
                 }
             }
         },
         methods: {
             handleCoverSuccess(res, file) {
                 res.forEach((r)=>{
-                    file.id = r.id;
+                    file.attachmentId = r.id;
                     file.name = r.name;
+                    file.isCover = true;
                 });
-                this.cover.file = file;
+                Object.assign(this.formData.goodsCoverImage, file);
+            },
+            handleAttached1Success(res, file) {
+                res.forEach((r)=>{
+                    file.attachmentId = r.id;
+                    file.name = r.name;
+                    file.isCover = false;
+                });
+                Object.assign(this.formData.goodsAttached1Image, file);
+            },
+            handleAttached2Success(res, file) {
+                res.forEach((r)=>{
+                    file.attachmentId = r.id;
+                    file.name = r.name;
+                    file.isCover = false;
+                });
+                Object.assign(this.formData.goodsAttached2Image, file);
+            },
+            handleAttached3Success(res, file) {
+                res.forEach((r)=>{
+                    file.attachmentId = r.id;
+                    file.name = r.name;
+                    file.isCover = false;
+                });
+                Object.assign(this.formData.goodsAttached3Image, file);
+            },
+            handleAttached4Success(res, file) {
+                res.forEach((r)=>{
+                    file.attachmentId = r.id;
+                    file.name = r.name;
+                    file.isCover = false;
+                });
+                Object.assign(this.formData.goodsAttached4Image, file);
             }
         },
         mounted() {
@@ -110,6 +211,38 @@
         filters: {
             baseUrl(val) {
                 return util.baseURL + val;
+            }
+        },
+        watch: {
+            'formData.goodsCoverImage': {
+                handler(val, oldVal) {
+                    this.cover.file = Object.assign({status: 'finished'}, val);
+                },
+                deep: true
+            },
+            'formData.goodsAttached1Image': {
+                handler(val, oldVal) {
+                    this.attached1.file = Object.assign({status: 'finished'}, val);
+                },
+                deep: true
+            },
+            'formData.goodsAttached2Image': {
+                handler(val, oldVal) {
+                    this.attached2.file = Object.assign({status: 'finished'}, val);
+                },
+                deep: true
+            },
+            'formData.goodsAttached3Image': {
+                handler(val, oldVal) {
+                    this.attached3.file = Object.assign({status: 'finished'}, val);
+                },
+                deep: true
+            },
+            'formData.goodsAttached4Image': {
+                handler(val, oldVal) {
+                    this.attached4.file = Object.assign({status: 'finished'}, val);
+                },
+                deep: true
             }
         }
     }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <FormItem label="商品名称" prop="name">
-            <Input v-model="formData.name" placeholder="商品名称"/>
+            <Input v-model="formData.name" placeholder="商品名称" @on-change="onNameChange"/>
         </FormItem>
         <Row>
             <Col :span="8">
@@ -10,12 +10,12 @@
             </FormItem>
             </Col>
             <Col :span="8">
-            <FormItem label="商品简名" prop="code">
+            <FormItem label="商品简名" prop="shortname">
                 <Input v-model="formData.shortname" placeholder="商品简名"/>
             </FormItem>
             </Col>
             <Col :span="8">
-            <FormItem label="拼音码" prop="code">
+            <FormItem label="拼音码" prop="pinyin">
                 <Input v-model="formData.pinyin" placeholder="拼音码"/>
             </FormItem>
             </Col>
@@ -82,9 +82,19 @@
 </template>
 
 <script>
+    import util from '@/libs/util';
     export default {
         props: {
             formData: Object
+        },
+        methods: {
+            onNameChange() {
+                let name = this.formData.name;
+                if(name) {
+                    this.formData.shortname = name;
+                    this.formData.pinyin = util.getFirstPinyinLetter(name);
+                }
+            }
         }
     }
 </script>

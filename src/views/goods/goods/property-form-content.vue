@@ -14,8 +14,9 @@
         <Row>
             <Col :span="8">
             <FormItem label="属性组" prop="goodsPropertyGroupId" :label-width="70">
-                <Select v-model="formData.goodsPropertyGroupId" placeholder="请选择属性组">
+                <Select v-model="formData.goodsPropertyGroupId" clearable placeholder="请选择属性组">
                     <Option v-for="group in groups" :value="group.id" :key="group.id">{{group.name}}</Option>
+                    <Spin v-if="loading" style="margin: 0 auto;"></Spin>
                 </Select>
             </FormItem>
             </Col>
@@ -24,7 +25,9 @@
             <div class="property-group-list-item-extra-wrap">
                 <div class="property-group-list-item-meta">
                     <div class="property-group-list-item-content">
-                        <Row :key="property.id" class="property-group-list-item-content-row" v-for="property in selectedGroup.goodsPropertyResults">
+                        <Row :key="property.id"
+                             class="property-group-list-item-content-row"
+                             v-for="property in (selectedGroup? selectedGroup.goodsPropertyResults: [])">
                             <Col :span="2">
                             <label class="property-group-list-item-content-title">{{property.name}}</label>
                             </Col>
@@ -36,7 +39,6 @@
                 </div>
             </div>
         </div>
-        <Spin size="large" fix v-if="loading"></Spin>
     </div>
 </template>
 
@@ -50,16 +52,18 @@
             return {
                 loading: false,
                 groups: [],
-                selectedGroup: {}
+                selectedGroup: {},
+                groupLoader: null
             }
         },
         methods: {
             loadGroup() {
                 this.loading = true;
-                util.ajax.get('/api/goodsPropertyGroup').then((response)=>{
+                this.groupLoader = util.ajax.get('/api/goodsPropertyGroup');
+                this.groupLoader.then((response)=>{
                     this.groups = response.data;
                     this.loading = false;
-                });
+                })
             }
         },
         mounted() {
@@ -67,9 +71,16 @@
         },
         watch: {
             'formData.goodsPropertyGroupId': {
-                handler(val) {
-                    this.selectedGroup = this.groups.find((g)=>g.id === val);
-                }
+                handler(val, oldVal) {
+                    if(!val) {
+                        this.selectedGroup = {};
+                    } else {
+                        this.groupLoader.then((response)=>{
+                            this.selectedGroup = this.groups.find((g)=>g.id === val);
+                        });
+                    }
+                },
+                deep: true
             }
         }
     }

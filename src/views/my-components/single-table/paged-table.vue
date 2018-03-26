@@ -18,7 +18,12 @@
             <slot name="actions"/>
         </Row>
         <Row class="margin-top-medium">
-            <Table ref="table" :columns="table.columns" :data="table.data" :height="height" :width="width"></Table>
+            <Table ref="table"
+                   :show-header="showHeader"
+                   :columns="table.columns"
+                   :data="table.data"
+                   :height="height"
+                   :width="width"></Table>
         </Row>
         <Row class="margin-top-medium">
             <Page v-if="page"
@@ -84,6 +89,10 @@
             height: Number,
             width: Number,
             page: {
+                type: Boolean,
+                default: true
+            },
+            showHeader: {
                 type: Boolean,
                 default: true
             }

@@ -44,7 +44,7 @@
                     </span>
                     <Row>
                         <FormItem label="仓库名称" prop="name">
-                            <Input v-model="props.data.name" placeholder="仓库名称" @on-blur="onNameBlur"/>
+                            <Input v-model="props.data.name" placeholder="仓库名称" @on-change="onNameChange"/>
                         </FormItem>
                     </Row>
                     <Row>
@@ -186,15 +186,12 @@
             }
         },
         methods: {
-            onNameBlur() {
-                let name = this.form.data.name;
+            onNameChange() {
+                const formData = this.$refs.table.form.data;
+                let name = formData.name;
                 if(name) {
-                    if(!this.form.data.shortname) {
-                        this.form.data.shortname = name;
-                    }
-                    if(!this.form.data.pinyin) {
-                        this.form.data.pinyin = util.getFirstPinyinLetter(name);
-                    }
+                    formData.shortname = name;
+                    formData.pinyin = util.getFirstPinyinLetter(name);
                 }
             }
         },

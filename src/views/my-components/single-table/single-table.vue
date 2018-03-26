@@ -6,6 +6,7 @@
 <template>
     <div>
         <paged-table ref="table"
+                     :show-header="showHeader"
                      :query-params="queryParams"
                      :domain-url="domainUrl"
                      :actions="table.actions"
@@ -131,6 +132,10 @@
             height: Number,
             width: Number,
             page: {
+                type: Boolean,
+                default: true
+            },
+            showHeader: {
                 type: Boolean,
                 default: true
             }

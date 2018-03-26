@@ -1,13 +1,5 @@
 <style lang="less">
-    @import '.././property-group/property-group.less';
-    .property-group-list-item {
-        margin-left: 20px;
-        border-bottom: none;
-    }
-    .property-group-list-item-content {
-        max-width: 620px;
-    }
-
+    @import '../././edit-modal.less';
 </style>
 <template>
     <div>
@@ -21,24 +13,6 @@
             </FormItem>
             </Col>
         </Row>
-        <div class="property-group-list-item">
-            <div class="property-group-list-item-extra-wrap">
-                <div class="property-group-list-item-meta">
-                    <div class="property-group-list-item-content">
-                        <Row :key="property.id"
-                             class="property-group-list-item-content-row"
-                             v-for="property in (selectedGroup? selectedGroup.goodsPropertyResults: [])">
-                            <Col :span="2">
-                            <label class="property-group-list-item-content-title">{{property.name}}</label>
-                            </Col>
-                            <Col :span="22">
-                            <Tag :key="value.id" color="blue" v-for="value in property.goodsPropertyValueResults">{{value.name}}</Tag>
-                            </Col>
-                        </Row>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 

@@ -236,7 +236,8 @@
                             id: null,
                             isCover: false,
                             attachmentId: null
-                        }
+                        },
+                        goodsGoodsProperties: []
                     }
                 }
             }
@@ -248,6 +249,7 @@
                 this.$refs.table.form.data.goodsAttached2Image = this.form.data.goodsAttached2Image;
                 this.$refs.table.form.data.goodsAttached3Image = this.form.data.goodsAttached3Image;
                 this.$refs.table.form.data.goodsAttached4Image = this.form.data.goodsAttached4Image;
+                this.$refs.table.form.data.goodsGoodsProperties = [];
             }
         },
         mounted() {

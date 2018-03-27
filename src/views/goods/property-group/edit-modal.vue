@@ -1,9 +1,8 @@
 <style lang="less">
-    @import './edit-modal.less';
 </style>
 
 <template>
-    <Modal class="property-group-edit"
+    <Modal class="property-selector"
            v-model="form.modal"
            title="属性组维护"
            :loading="form.loading"
@@ -21,54 +20,20 @@
                 </FormItem>
                 </Col>
             </Row>
-            <FormItem label="属性" prop="goodsPropertyIds">
-                <CheckboxGroup v-model="form.data.goodsPropertyIds">
-                    <Checkbox :key="goodsProperty.id"
-                              :label="goodsProperty.id"
-                              v-for="goodsProperty in goodsProperties">{{goodsProperty.name}}</Checkbox>
-                </CheckboxGroup>
-            </FormItem>
-            <FormItem :class="{'property-group-edit-category-expanded': !hideMoreCategory}"
-                      :key="id"
-                      :label="getGroupPropertyName(id) + '属性'"
-                      v-for="id in form.data.goodsPropertyIds">
-                <Tag :ref="id + 'isNull_tag'"
-                     size="small"
-                     checkable
-                     :checked="ifTagChecked(id, 'isNull')"
-                     type="border"
-                     @click.native="checkTag(id, 'isNull')">未分组</Tag>
-                <Tag :ref="id + propertyCategory.id + '_tag'"
-                     size="small"
-                     :key="propertyCategory.id"
-                     checkable
-                     :checked="ifTagChecked(id, propertyCategory.id)"
-                     @click.native="checkTag(id, propertyCategory.id)"
-                     type="border"
-                     v-show="index < 3 || !hideMoreCategory"
-                     v-for="(propertyCategory, index) in goodsPropertyCategories[id]">{{propertyCategory.name}}</Tag>
-                <a href="javascript:void(0)"
-                   class="expand-handler"
-                   v-if="goodsPropertyCategories[id] && goodsPropertyCategories[id].length > 3"
-                   @click="hideMoreCategory = !hideMoreCategory">
-                    {{hideMoreCategory? '展开': '收起'}} <Icon type="chevron-down"></Icon>
-                </a>
-                <CheckboxGroup v-model="form.data.goodsPropertyValueIds">
-                    <Checkbox :key="propertyValue.id"
-                              :label="propertyValue.id"
-                              v-for="propertyValue in propertyValues[id]">{{propertyValue.name}}</Checkbox>
-                </CheckboxGroup>
-            </FormItem>
+            <property-selector ref="propertySelector"
+                               :default-selected-data="defaultSelectedData"
+                               @on-select-change="onSelectChange"></property-selector>
         </Form>
-        <Spin size="large" fix v-if="form.data.loading"></Spin>
     </Modal>
 </template>
 
 <script>
     import util from '@/libs/util';
-    import axios from 'axios';
-
+    import PropertySelector from './property-selector.vue';
     export default {
+        components: {
+            PropertySelector
+        },
         data() {
             return {
                 form: {
@@ -78,9 +43,7 @@
                         id: null,
                         name: null,
                         remark: null,
-                        goodsPropertyIds: [],
-                        goodsPropertyValueIds: [],
-                        loading: false
+                        goodsPropertyGroupProperties: []
                     },
                     rule: {
                         name: [
@@ -88,103 +51,52 @@
                         ]
                     }
                 },
-                goodsProperties: [],
-                propertyValues: {},
-                goodsPropertyCategories: {},
-                propertyValueQueryParam: {},
-                hideMoreCategory: true
+                defaultSelectedData: {}
             }
         },
         methods: {
             openNewModal() {
                 this.$refs.form.resetFields();
                 this.form.data.id = null;// 解决清空表单id不会删除问题
-                this.form.data.goodsPropertyIds = [];
-                this.form.data.goodsPropertyValueIds = [];
-                this.propertyValues = {};
-                this.goodsPropertyCategories = {};
-                this.propertyValueQueryParam = {};
+                this.defaultSelectedData = {};
                 this.form.modal = true;
             },
             openEditModal(row) {
                 this.$refs.form.resetFields();
-                this.propertyValues = {};
-                this.goodsPropertyCategories = {};
-                this.propertyValueQueryParam = {};
+                this.defaultSelectedData = {};
                 util.ajax.get(`/api/goodsPropertyGroup/${row.id}`).then((response)=>{
                     this.form.data = response.data;
-                    this.form.data.goodsPropertyResults.forEach((result)=>{
-                        result.goodsPropertyValueResults.forEach((sub)=>{
-                            if(this.propertyValueQueryParam[sub.goodsPropertyId] === undefined) {
-                                this.$set(this.propertyValueQueryParam, sub.goodsPropertyId, {goodsPropertyCategoryId: []});
-                            }
-                            if(sub.goodsPropertyCategoryId) {
-                                this.addPropertyValueQueryParam(sub.goodsPropertyId, sub.goodsPropertyCategoryId);
-                            }
+                    const defaultSelectedData = {};
+                    response.data.goodsPropertyResults.forEach((result)=>{
+                        const goodsPropertyGroupProperties = [];
+                        result.goodsPropertyValueResults.forEach((value)=>{
+                            goodsPropertyGroupProperties.push(value.id);
                         });
-                        this.loadPropertyValues(result.id);
+                        defaultSelectedData[result.id] = goodsPropertyGroupProperties;
                     });
+                    this.defaultSelectedData = defaultSelectedData;
                     this.form.modal = true;
                 });
             },
-            loadProperties() {
-                util.ajax.get('/api/goodsProperty').then((response)=>{
-                    this.goodsProperties = response.data;
-                });
-            },
-            loadPropertyValues(propertyId) {
-                if(this.propertyValueQueryParam[propertyId].goodsPropertyCategoryId.length === 0) {
-                    this.$set(this.propertyValues, propertyId, []);
-                    return;
-                }
-                util.ajax.get('/api/goodsPropertyValue', {
-                    params: {
-                        goodsPropertyId: propertyId,
-                        ...this.propertyValueQueryParam[propertyId]
+            onSelectChange(data) {
+                const goodsProperties = this.$refs.propertySelector.goodsProperties;
+                const goodsPropertyGroupProperties = [];
+                for(let key in data) {
+                    if(!data[key]) {
+                        continue;
                     }
-                }).then((response)=>{
-                    this.$set(this.propertyValues, propertyId, response.data);
-                });
-            },
-            loadPropertyCategories(propertyId) {
-                let ajax = util.ajax.get('/api/goodsPropertyCategory', {
-                    params: {
-                        goodsPropertyId: propertyId
-                    }
-                })
-                ajax.then((response)=>{
-                    this.$set(this.goodsPropertyCategories, propertyId, response.data);
-                });
-                return ajax;
-            },
-            getGroupPropertyName(id) {
-                return this.goodsProperties.find((d)=>d.id === id).name;
-            },
-            ifTagChecked(id, goodsPropertyCategoryId) {
-                if(this.propertyValueQueryParam[id]) {
-                    return this.propertyValueQueryParam[id].goodsPropertyCategoryId.includes(goodsPropertyCategoryId);
+                    const goodsPropertyGroupPropertyValues = [];
+                    data[key].forEach((d)=>{
+                        goodsPropertyGroupPropertyValues.push({
+                            goodsPropertyValueId: d
+                        });
+                    })
+                    goodsPropertyGroupProperties.push({
+                        goodsPropertyId: key,
+                        goodsPropertyGroupPropertyValues: goodsPropertyGroupPropertyValues
+                    });
                 }
-                return false;
-            },
-            checkTag(id, goodsPropertyCategoryId) {
-                if(this.$refs[id + goodsPropertyCategoryId + '_tag'][0].isChecked) {
-                    this.addPropertyValueQueryParam(id, goodsPropertyCategoryId);
-                } else {
-                    this.removePropertyValueQueryParam(id, goodsPropertyCategoryId);
-                }
-                this.loadPropertyValues(id);
-            },
-            addPropertyValueQueryParam(id, goodsPropertyCategoryId) {
-                const array = this.propertyValueQueryParam[id].goodsPropertyCategoryId;
-                if(!array.includes(goodsPropertyCategoryId)) {
-                    array.push(goodsPropertyCategoryId)
-                }
-            },
-            removePropertyValueQueryParam(id, goodsPropertyCategoryId) {
-                const array = this.propertyValueQueryParam[id].goodsPropertyCategoryId;
-                if(array.includes(goodsPropertyCategoryId)) {
-                    array.splice(array.findIndex((a)=>a === goodsPropertyCategoryId), 1);
-                }
+                this.form.data.goodsPropertyGroupProperties = goodsPropertyGroupProperties;
             },
             save() {
                 this.$refs.form.validate((valid) => {
@@ -210,29 +122,6 @@
             }
         },
         mounted() {
-            this.loadProperties();
-        },
-        watch: {
-            'form.data.goodsPropertyIds': {
-                handler(val) {
-                    val.forEach((v)=>{
-                        if(this.goodsPropertyCategories[v] === undefined) {
-                            this.form.data.loading = true;
-                            if(this.propertyValueQueryParam[v] === undefined)
-                                this.$set(this.propertyValueQueryParam, v, {goodsPropertyCategoryId: []});
-                            this.loadPropertyCategories(v).then((response)=>{
-                                // 如果没有分组则直接加载属性值
-                                if(response.data.length === 0) {
-                                    this.$refs[v + 'isNull_tag'][0].isChecked = true;
-                                    this.$nextTick(()=>this.checkTag(v, 'isNull'));
-                                }
-                                this.form.data.loading = false;
-                            });
-                        }
-                    })
-                },
-                deep: true
-            }
         }
     }
 </script>

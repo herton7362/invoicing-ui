@@ -1,5 +1,4 @@
 <style lang="less">
-    @import '../././edit-modal.less';
 </style>
 <template>
     <div>

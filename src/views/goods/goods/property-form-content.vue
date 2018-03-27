@@ -12,12 +12,18 @@
             </FormItem>
             </Col>
         </Row>
+        <property-selector :default-selected-data="defaultSelectedData"
+                           @on-select-change="onSelectChange"></property-selector>
     </div>
 </template>
 
 <script>
     import util from '@/libs/util';
+    import PropertySelector from '../property-group/property-selector.vue';
     export default {
+        components: {
+            PropertySelector
+        },
         props: {
             formData: Object
         },
@@ -25,8 +31,8 @@
             return {
                 loading: false,
                 groups: [],
-                selectedGroup: {},
-                groupLoader: null
+                groupLoader: null,
+                defaultSelectedData: {}
             }
         },
         methods: {
@@ -37,6 +43,25 @@
                     this.groups = response.data;
                     this.loading = false;
                 })
+            },
+            onSelectChange(data) {
+                const goodsPropertyGroupProperties = [];
+                for(let key in data) {
+                    if(!data[key]) {
+                        continue;
+                    }
+                    const goodsPropertyGroupPropertyValues = [];
+                    data[key].forEach((d)=>{
+                        goodsPropertyGroupPropertyValues.push({
+                            goodsPropertyValueId: d
+                        });
+                    })
+                    goodsPropertyGroupProperties.push({
+                        goodsPropertyId: key,
+                        goodsGoodsPropertyValues: goodsPropertyGroupPropertyValues
+                    });
+                }
+                this.formData.goodsGoodsProperties = goodsPropertyGroupProperties;
             }
         },
         mounted() {
@@ -46,10 +71,17 @@
             'formData.goodsPropertyGroupId': {
                 handler(val, oldVal) {
                     if(!val) {
-                        this.selectedGroup = {};
+                        this.defaultSelectedData = {};
                     } else {
                         this.groupLoader.then((response)=>{
-                            this.selectedGroup = this.groups.find((g)=>g.id === val);
+                            this.defaultSelectedData = {};
+                            this.groups.find((g)=>g.id === val).goodsPropertyResults.forEach((g)=>{
+                                const goodsPropertyGroupProperties = [];
+                                g.goodsPropertyValueResults.forEach((v)=>{
+                                    goodsPropertyGroupProperties.push(v.id);
+                                })
+                                this.defaultSelectedData[g.id] = goodsPropertyGroupProperties;
+                            });
                         });
                     }
                 },

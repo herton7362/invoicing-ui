@@ -20,8 +20,7 @@
                 </FormItem>
                 </Col>
             </Row>
-            <property-selector ref="propertySelector"
-                               :default-selected-data="defaultSelectedData"
+            <property-selector :default-selected-data="defaultSelectedData"
                                @on-select-change="onSelectChange"></property-selector>
         </Form>
     </Modal>
@@ -79,7 +78,6 @@
                 });
             },
             onSelectChange(data) {
-                const goodsProperties = this.$refs.propertySelector.goodsProperties;
                 const goodsPropertyGroupProperties = [];
                 for(let key in data) {
                     if(!data[key]) {

@@ -12,7 +12,9 @@
                       :form-rule="form.rule"
                       :form-data="form.data"
                       :modal-width="700"
-                      @on-new-modal-open="onNewModalOpen">
+                      @on-new-modal-open="onNewModalOpen"
+                      @on-edit-modal-open="onEditModalOpen"
+                      :form-transform-response="formTransformResponse">
             <template slot="query-form" slot-scope="props">
                 <FormItem class="padding-right-medium" prop="name" label="商品名称">
                     <Input v-model="props.params.name" placeholder="商品名称"/>
@@ -43,7 +45,7 @@
                         <sale-price-form-content :form-data="props.data"></sale-price-form-content>
                     </TabPane>
                     <TabPane label="属性设置">
-                        <property-form-content :form-data="props.data"></property-form-content>
+                        <property-form-content ref="propertyFormContent" :form-data="props.data"></property-form-content>
                     </TabPane>
                     <TabPane label="商品图片管理">
                         <image-form-content :form-data="props.data"></image-form-content>
@@ -250,6 +252,22 @@
                 this.$refs.table.form.data.goodsAttached3Image = this.form.data.goodsAttached3Image;
                 this.$refs.table.form.data.goodsAttached4Image = this.form.data.goodsAttached4Image;
                 this.$refs.table.form.data.goodsGoodsProperties = [];
+                this.$refs.propertyFormContent.defaultSelectedData = {};
+            },
+            onEditModalOpen() {
+                this.$refs.propertyFormContent.defaultSelectedData = {};
+            },
+            formTransformResponse(response) {
+                const defaultSelectedData = {};
+                response.data.goodsGoodsProperties.forEach((result)=>{
+                    const goodsPropertyGroupProperties = [];
+                    result.goodsGoodsPropertyValues.forEach((value)=>{
+                        goodsPropertyGroupProperties.push(value.id);
+                    });
+                    defaultSelectedData[result.id] = goodsPropertyGroupProperties;
+                });
+                this.$refs.propertyFormContent.defaultSelectedData = defaultSelectedData;
+                return response;
             }
         },
         mounted() {

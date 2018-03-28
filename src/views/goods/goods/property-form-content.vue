@@ -4,8 +4,8 @@
     <div>
         <Row>
             <Col :span="8">
-            <FormItem label="属性组" prop="goodsPropertyGroupId" :label-width="70">
-                <Select v-model="formData.goodsPropertyGroupId" clearable placeholder="请选择属性组">
+            <FormItem label="属性组" :label-width="70">
+                <Select v-model="goodsPropertyGroupId" clearable placeholder="请选择属性组">
                     <Option v-for="group in groups" :value="group.id" :key="group.id">{{group.name}}</Option>
                     <Spin v-if="loading" style="margin: 0 auto;"></Spin>
                 </Select>
@@ -32,7 +32,8 @@
                 loading: false,
                 groups: [],
                 groupLoader: null,
-                defaultSelectedData: {}
+                defaultSelectedData: {},
+                goodsPropertyGroupId: null
             }
         },
         methods: {
@@ -68,24 +69,21 @@
             this.loadGroup();
         },
         watch: {
-            'formData.goodsPropertyGroupId': {
-                handler(val, oldVal) {
-                    if(!val) {
+            goodsPropertyGroupId(val, oldVal) {
+                if(!val) {
+                    this.defaultSelectedData = {};
+                } else {
+                    this.groupLoader.then((response)=>{
                         this.defaultSelectedData = {};
-                    } else {
-                        this.groupLoader.then((response)=>{
-                            this.defaultSelectedData = {};
-                            this.groups.find((g)=>g.id === val).goodsPropertyResults.forEach((g)=>{
-                                const goodsPropertyGroupProperties = [];
-                                g.goodsPropertyValueResults.forEach((v)=>{
-                                    goodsPropertyGroupProperties.push(v.id);
-                                })
-                                this.defaultSelectedData[g.id] = goodsPropertyGroupProperties;
-                            });
+                        this.groups.find((g)=>g.id === val).goodsPropertyResults.forEach((g)=>{
+                            const goodsPropertyGroupProperties = [];
+                            g.goodsPropertyValueResults.forEach((v)=>{
+                                goodsPropertyGroupProperties.push(v.id);
+                            })
+                            this.defaultSelectedData[g.id] = goodsPropertyGroupProperties;
                         });
-                    }
-                },
-                deep: true
+                    });
+                }
             }
         }
     }

@@ -14,7 +14,7 @@
                       :modal-width="700"
                       @on-new-modal-open="onNewModalOpen"
                       @on-edit-modal-open="onEditModalOpen"
-                      :form-transform-response="formTransformResponse">
+                      @on-data-loaded="onDataLoaded">
             <template slot="query-form" slot-scope="props">
                 <FormItem class="padding-right-medium" prop="name" label="商品名称">
                     <Input v-model="props.params.name" placeholder="商品名称"/>
@@ -163,7 +163,6 @@
                         height: 0,
                         costPrice: 0,
                         remark: null,
-                        goodsPropertyGroupId: null,
                         basicGoodsPrice: {
                             id: null,
                             unitName: null,
@@ -256,20 +255,22 @@
             },
             onEditModalOpen() {
                 this.$refs.propertyFormContent.defaultSelectedData = {};
+                this.$refs.propertyFormContent.goodsPropertyGroupId = null;
             },
-            formTransformResponse(response) {
+            onDataLoaded(data) {
                 const defaultSelectedData = {};
-                if(response.data.goodsGoodsProperties) {
-                    response.data.goodsGoodsProperties.forEach((result)=>{
+                if(data.goodsGoodsProperties) {
+                    data.goodsGoodsProperties.forEach((result)=>{
                         const goodsPropertyGroupProperties = [];
                         result.goodsGoodsPropertyValues.forEach((value)=>{
-                            goodsPropertyGroupProperties.push(value.id);
+                            goodsPropertyGroupProperties.push(value.goodsPropertyValueId);
                         });
-                        defaultSelectedData[result.id] = goodsPropertyGroupProperties;
+                        defaultSelectedData[result.goodsPropertyId] = goodsPropertyGroupProperties;
                     });
-                    this.$refs.propertyFormContent.defaultSelectedData = defaultSelectedData;
                 }
-                return response;
+                this.$refs.propertyFormContent.$nextTick(()=>{
+                    this.$refs.propertyFormContent.defaultSelectedData = defaultSelectedData;
+                })
             }
         },
         mounted() {

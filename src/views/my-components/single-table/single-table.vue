@@ -237,6 +237,7 @@
                 util.ajax.get(`/api/${this.domainUrl}/${row.id}`).then((response) => {
                     response = this.formTransformResponse(response);
                     this.form.data = response.data;
+                    this.$emit('on-data-loaded', this.form.data);
                     this.form.modal = true;
                 });
             },

@@ -259,14 +259,16 @@
             },
             formTransformResponse(response) {
                 const defaultSelectedData = {};
-                response.data.goodsGoodsProperties.forEach((result)=>{
-                    const goodsPropertyGroupProperties = [];
-                    result.goodsGoodsPropertyValues.forEach((value)=>{
-                        goodsPropertyGroupProperties.push(value.id);
+                if(response.data.goodsGoodsProperties) {
+                    response.data.goodsGoodsProperties.forEach((result)=>{
+                        const goodsPropertyGroupProperties = [];
+                        result.goodsGoodsPropertyValues.forEach((value)=>{
+                            goodsPropertyGroupProperties.push(value.id);
+                        });
+                        defaultSelectedData[result.id] = goodsPropertyGroupProperties;
                     });
-                    defaultSelectedData[result.id] = goodsPropertyGroupProperties;
-                });
-                this.$refs.propertyFormContent.defaultSelectedData = defaultSelectedData;
+                    this.$refs.propertyFormContent.defaultSelectedData = defaultSelectedData;
+                }
                 return response;
             }
         },

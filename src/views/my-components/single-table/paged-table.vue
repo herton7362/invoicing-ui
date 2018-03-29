@@ -23,7 +23,8 @@
                    :columns="table.columns"
                    :data="table.data"
                    :height="height"
-                   :width="width"></Table>
+                   :width="width"
+                   :loading="table.loading"></Table>
         </Row>
         <Row class="margin-top-medium">
             <Page v-if="page"
@@ -95,6 +96,13 @@
             showHeader: {
                 type: Boolean,
                 default: true
+            },
+            actionDirection: {
+                type: String,
+                validator(val) {
+                    return 'horizontal' === val || 'vertical' === val;
+                },
+                default: 'horizontal'
             }
         },
         data() {
@@ -103,8 +111,8 @@
                 columns.push({
                     title: '操作',
                     key: 'action',
-                    width: (this.actions.length * 45 + 40),
-                    align: 'center',
+                    width: this.actionDirection === 'horizontal'? ((this.actions.length * 45) + 40): 80,
+                    align: this.actionDirection === 'horizontal'? 'center': 'left',
                     render: (h, params) => {
                         return h('div', [
                             ...this.actions.map((action)=>action(h, params))
@@ -114,6 +122,7 @@
             }
             return {
                 table: {
+                    loading: false,
                     columns: columns,
                     data: [],
                     total: 0,
@@ -172,6 +181,7 @@
                 if(!url) {
                     url = `/api/${this.domainUrl}`;
                 }
+                this.table.loading = true;
                 util.ajax.get(url, {
                     params: {
                         currentPage: this.table.currentPage,
@@ -183,7 +193,8 @@
                     response = this.tableTransformResponse(response);
                     this.table.data = response.data.content;
                     this.table.total = response.data.totalElements;
-                })
+                    this.table.loading = false;
+                }).catch(()=>this.table.loading = false);
             },
             clearData() {
                 this.table.data = [];

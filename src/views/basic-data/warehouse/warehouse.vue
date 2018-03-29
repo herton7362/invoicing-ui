@@ -6,6 +6,7 @@
     <Card>
         <single-table ref="table"
                       :columns="table.columns"
+                      :actions="table.actions"
                       form-title="仓库维护"
                       domain-url="warehouse"
                       :modal-width="600"
@@ -73,7 +74,7 @@
 
                 <Card dis-hover class="margin-top-medium">
                     <span slot="title">
-                        联系信息【将作为您物流单上的寄件人信息打印出来，请确保信息准确】
+                        联系信息【将作为你物流单上的寄件人信息打印出来，请确保信息准确】
                     </span>
                     <Row>
                         <Col :span="8">
@@ -158,6 +159,48 @@
                                 }
                             }},
                         {key: 'remark', title: '备注'}
+                    ],
+                    actions: [
+                        (h, params)=> {
+                            return h('Dropdown', {
+                                style: {
+                                    textAlign: 'left'
+                                }
+                            }, [
+                                h('a', {
+                                    attrs: {
+                                        href: 'javascript:void(0)'
+                                    }
+                                }, [
+                                    h('span', '更多'),
+                                    h('Icon', {props: {type: 'arrow-down-b'}})
+                                ]),
+                                h('DropdownMenu', {
+                                    slot: 'list'
+                                }, [
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                util.ajax.post(`/api/warehouse/enable/${params.row.id}`).then((r)=>{
+                                                    this.$Message.success('启用成功');
+                                                    this.$refs.table.reloadGrid();
+                                                });
+                                            }
+                                        }
+                                    }, '启用'),
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                util.ajax.post(`/api/warehouse/disable/${params.row.id}`).then((r)=>{
+                                                    this.$Message.success('停用成功');
+                                                    this.$refs.table.reloadGrid();
+                                                });
+                                            }
+                                        }
+                                    }, '停用')
+                                ])
+                            ])
+                        }
                     ]
                 },
                 form: {

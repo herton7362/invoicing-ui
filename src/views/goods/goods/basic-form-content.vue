@@ -1,8 +1,19 @@
 <template>
     <div>
-        <FormItem label="商品名称" prop="name">
-            <Input v-model="formData.name" placeholder="商品名称" @on-change="onNameChange"/>
-        </FormItem>
+        <Row>
+            <Col :span="12">
+            <FormItem label="所属分类" prop="goodsCategoryId">
+                <Select v-model="formData.goodsCategoryId" placeholder="商品分类" clearable>
+                    <Option :key="data.id" :value="data.id" v-for="data in categoryData">{{data.name}}</Option>
+                </Select>
+            </FormItem>
+            </Col>
+            <Col :span="12">
+            <FormItem label="商品名称" prop="name">
+                <Input v-model="formData.name" placeholder="商品名称" @on-change="onNameChange"/>
+            </FormItem>
+            </Col>
+        </Row>
         <Row>
             <Col :span="8">
             <FormItem label="商品编码" prop="code">
@@ -85,7 +96,8 @@
     import util from '@/libs/util';
     export default {
         props: {
-            formData: Object
+            formData: Object,
+            tree: Object
         },
         methods: {
             onNameChange() {
@@ -94,6 +106,13 @@
                     this.formData.shortname = name;
                     this.formData.pinyin = util.getFirstPinyinLetter(name);
                 }
+            }
+        },
+        computed: {
+            categoryData() {
+                let data = [...this.tree.tree.raw];
+                data.splice(data.length - 1, 1);
+                return data;
             }
         }
     }

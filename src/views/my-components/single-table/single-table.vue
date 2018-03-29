@@ -18,7 +18,8 @@
                      @on-load="onLoadGrid"
                      :height="height"
                      :width="width"
-                     :page="page">
+                     :page="page"
+                     :action-direction="actionDirection">
             <template slot="query-form" slot-scope="props">
                 <slot name="query-form" :params="props.params">
 
@@ -138,6 +139,13 @@
             showHeader: {
                 type: Boolean,
                 default: true
+            },
+            actionDirection: {
+                type: String,
+                validator(val) {
+                    return 'horizontal' === val || 'vertical' === val;
+                },
+                default: 'horizontal'
             }
         },
         data() {
@@ -150,7 +158,8 @@
                                     href: 'javascript:void(0)'
                                 },
                                 style: {
-                                    marginRight: '5px'
+                                    ['margin' + (this.actionDirection === 'horizontal'? 'Right': 'Bottom')]: '5px',
+                                    display: 'inline-block'
                                 },
                                 on: {
                                     click: () => {
@@ -165,7 +174,7 @@
                                     props: {
                                         confirm: true,
                                         transfer: true,
-                                        title: '您确认删除这条内容吗？'
+                                        title: '你确认删除这条内容吗？'
                                     },
                                     on: {
                                         'on-ok': () => {
@@ -179,7 +188,8 @@
                                             href: 'javascript:void(0)'
                                         },
                                         style: {
-                                            marginRight: '5px'
+                                            ['margin' + (this.actionDirection === 'horizontal'? 'Right': 'Bottom')]: '5px',
+                                            display: 'inline-block'
                                         }
                                     }, '删除')
                                 ]
@@ -230,6 +240,7 @@
                 this.$emit('on-new-modal-open');
                 this.form.data.id = null;// 解决清空表单id不会删除问题
                 this.form.modal = true;
+                this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
             },
             openEditModal(row) {
                 this.$emit('on-edit-modal-open');
@@ -239,6 +250,7 @@
                     this.form.data = response.data;
                     this.$emit('on-data-loaded', this.form.data);
                     this.form.modal = true;
+                    this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
                 });
             },
             resetQueryForm () {

@@ -6,6 +6,7 @@
     <Card>
         <single-table ref="table"
                       :columns="table.columns"
+                      :actions="table.actions"
                       form-title="门店维护"
                       domain-url="store"
                       :modal-width="700"
@@ -236,6 +237,48 @@
                             }},
                         {key: 'linkman', title: '联系人'},
                         {key: 'code', title: '门店编码'}
+                    ],
+                    actions: [
+                        (h, params)=> {
+                            return h('Dropdown', {
+                                style: {
+                                    textAlign: 'left'
+                                }
+                            }, [
+                                h('a', {
+                                    attrs: {
+                                        href: 'javascript:void(0)'
+                                    }
+                                }, [
+                                    h('span', '更多'),
+                                    h('Icon', {props: {type: 'arrow-down-b'}})
+                                ]),
+                                h('DropdownMenu', {
+                                    slot: 'list'
+                                }, [
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                util.ajax.post(`/api/store/enable/${params.row.id}`).then((r)=>{
+                                                    this.$Message.success('启用成功');
+                                                    this.$refs.table.reloadGrid();
+                                                });
+                                            }
+                                        }
+                                    }, '启用'),
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                util.ajax.post(`/api/store/disable/${params.row.id}`).then((r)=>{
+                                                    this.$Message.success('停用成功');
+                                                    this.$refs.table.reloadGrid();
+                                                });
+                                            }
+                                        }
+                                    }, '停用')
+                                ])
+                            ])
+                        }
                     ]
                 },
                 form: {

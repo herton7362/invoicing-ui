@@ -59,6 +59,7 @@
                 this.form.data.id = null;// 解决清空表单id不会删除问题
                 this.defaultSelectedData = {};
                 this.form.modal = true;
+                this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
             },
             openEditModal(row) {
                 this.$refs.form.resetFields();
@@ -75,6 +76,7 @@
                     });
                     this.defaultSelectedData = defaultSelectedData;
                     this.form.modal = true;
+                    this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
                 });
             },
             onSelectChange(data) {

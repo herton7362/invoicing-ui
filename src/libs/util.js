@@ -284,19 +284,19 @@ util.transformTreeData = function (data, titleKey, defaultExpanded = true) {
             d.title = d[titleKey];
             d.label = d[titleKey];
         }
-        d.expand = defaultExpanded;
+        d.expand = d.expand || defaultExpanded;
         map[d.id] = d;
-        if(!d.parent || !d.parent.id) {
+        if((!d.parent || !d.parent.id) && !d.parentId) {
             roots.push(d);
         }
     });
 
     for(let key of Object.getOwnPropertyNames(map)) {
         node = map[key];
-        if(!node.parent) {
+        if(!node.parent && !node.parentId) {
             continue;
         }
-        let parent = map[node.parent.id];
+        let parent = map[(node.parent && node.parent.id) || node.parentId];
         if(!parent) {
             roots.push(node);
             continue;
@@ -423,6 +423,11 @@ util.getFirstPinyinLetter = function(str) {
         result.push(ch);
     }
     return result.join('').toLowerCase();
+}
+
+util.autofocusFormField = function (vmForm, fieldIndex = 0) {
+    if(vmForm.fields[fieldIndex].$children[0].focus)
+        vmForm.fields[fieldIndex].$children[0].focus();
 }
 
 // util.onWheel = function (ele, callback) {

@@ -22,7 +22,7 @@
                         <span>{{row.name}}</span>
                         <div class="bottom clearfix">
                             <span class="size">{{row.size | sizeFormatter}}</span>
-                            <Poptip confirm transfer title="您确认删除这条附件吗？" @on-ok="remove(row)" style="float:right">
+                            <Poptip confirm transfer title="你确认删除这条附件吗？" @on-ok="remove(row)" style="float:right">
                                 <Button type="error" size="small">
                                     <Icon type="trash-a"></Icon>
                                 </Button>

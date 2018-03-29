@@ -20,4 +20,14 @@
       transform: rotate(180deg);
     }
   }
+
+  &-remove{
+    color: #495060;
+    opacity: 0;
+  }
+
+  .ivu-checkbox-wrapper:hover &-remove {
+    transition: opacity .5s;
+    opacity: 1;
+  }
 }

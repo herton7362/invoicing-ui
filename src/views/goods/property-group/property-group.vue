@@ -29,7 +29,7 @@
                     </div>
                     <div class="property-group-list-item-action">
                         <a href="javascript:void(0)" class="margin-right-small" @click="openEditModal(row)">修改</a>
-                        <Poptip confirm transfer title="您确认删除这条内容吗？" @on-ok="remove(row)">
+                        <Poptip confirm transfer title="你确认删除这条内容吗？" @on-ok="remove(row)">
                             <a href="javascript:void(0)" class="margin-right-small">删除</a>
                         </Poptip>
                     </div>

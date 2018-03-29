@@ -129,11 +129,13 @@
                 });
             },
             formTransformResponse(response) {
-                response.data.goodsPropertyCategoryIdArray = response.data.goodsPropertyCategoryId.split(',');
+                let id = response.data.goodsPropertyCategoryId;
+                response.data.goodsPropertyCategoryIdArray = id?id.split(','): [];
                 return response;
             },
             formTransformData(data) {
-                data.goodsPropertyCategoryId = data.goodsPropertyCategoryIdArray.join(',');
+                let array = data.goodsPropertyCategoryIdArray;
+                data.goodsPropertyCategoryId = array.length? array.join(','): null;
                 return data;
             },
             loadGrid() {

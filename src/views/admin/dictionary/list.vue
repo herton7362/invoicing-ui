@@ -26,7 +26,7 @@
                         <Icon type="ios-book"></Icon>
                         {{tree.selected.name}}
                         <Button type="ghost" size="small" style="width: 70px;" @click="openEditTreeModal">编辑</Button>
-                        <Poptip transfer confirm title="您确定删除这个字典吗？" @on-ok="deleteTreeNode">
+                        <Poptip transfer confirm title="你确定删除这个字典吗？" @on-ok="deleteTreeNode">
                             <Button type="error" size="small" style="width: 50px;margin-left:8px">删除</Button>
                         </Poptip>
                     </h2>

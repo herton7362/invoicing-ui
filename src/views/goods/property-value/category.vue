@@ -23,7 +23,7 @@
                     </Form>
                 </div>
             </Poptip>
-            <Poptip title="您确认删除这条内容吗？" confirm transfer @on-ok="remove(item)">
+            <Poptip title="你确认删除这条内容吗？" confirm transfer @on-ok="remove(item)">
                 <Icon type="ios-close-empty"></Icon>
             </Poptip>
         </Tag>
@@ -91,15 +91,17 @@
             },
             newOne() {
                 this.form.data = {};
+                this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
             },
             loadOne(item) {
                 item.modal = true;
                 this.form.data = item;
+                this.$nextTick(()=>util.autofocusFormField(this.$refs[`${item.id}_form`][0]));
             },
             remove(item) {
                 this.$Modal.confirm({
                     title: '系统提示',
-                    content: `您确认删除【${item.name}】吗？`,
+                    content: `你确认删除【${item.name}】吗？`,
                     onOk: () => {
                         util.ajax.delete(`/api/goodsPropertyCategory/${item.id}`).then(() => {
                             this.$Message.success('删除成功');

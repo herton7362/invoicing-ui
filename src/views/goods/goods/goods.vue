@@ -3,62 +3,79 @@
 </style>
 
 <template>
-    <Card class="goods">
-        <single-table ref="table"
-                      :show-header="false"
-                      :columns="table.columns"
-                      form-title="商品维护"
-                      domain-url="goods"
-                      :form-rule="form.rule"
-                      :form-data="form.data"
-                      :modal-width="700"
-                      @on-new-modal-open="onNewModalOpen"
-                      @on-edit-modal-open="onEditModalOpen"
-                      @on-data-loaded="onDataLoaded">
-            <template slot="query-form" slot-scope="props">
-                <FormItem class="padding-right-medium" prop="name" label="商品名称">
-                    <Input v-model="props.params.name" placeholder="商品名称"/>
-                </FormItem>
-                <FormItem class="padding-right-medium" prop="code" label="商品编码">
-                    <Input v-model="props.params.code" placeholder="商品编码"/>
-                </FormItem>
-                <FormItem class="padding-right-medium" prop="shortname" label="商品简称">
-                    <Input v-model="props.params.shortname" placeholder="商品简称"/>
-                </FormItem>
-                <FormItem class="padding-right-medium" prop="pinyin" label="拼音码">
-                    <Input v-model="props.params.pinyin" placeholder="拼音码"/>
-                </FormItem>
-                <FormItem class="padding-right-medium" prop="standard" label="规格">
-                    <Input v-model="props.params.standard" placeholder="规格"/>
-                </FormItem>
-                <FormItem class="padding-right-medium" prop="model" label="型号">
-                    <Input v-model="props.params.model" placeholder="型号"/>
-                </FormItem>
-            </template>
+    <div class="goods-main">
+        <div class="goods-tree">
+            <Card>
+                <editable-tree ref="goodsCategory"
+                               :selected-id="null"
+                               data-type="tree"
+                               domainUrl="goodsCategory"
+                               root-name="全部分类"
+                               @on-select-change="onSelectTree"
+                               :tree-transform-response="treeTransformResponse"></editable-tree>
+            </Card>
+        </div>
+        <Card class="goods-list">
+            <single-table ref="table"
+                          :show-header="false"
+                          :columns="table.columns"
+                          :query-params="table.queryParams"
+                          :actions="table.actions"
+                          action-direction="vertical"
+                          form-title="商品维护"
+                          domain-url="goods"
+                          :form-rule="form.rule"
+                          :form-data="form.data"
+                          :modal-width="700"
+                          @on-new-modal-open="onNewModalOpen"
+                          @on-edit-modal-open="onEditModalOpen"
+                          @on-data-loaded="onDataLoaded">
+                <template slot="query-form" slot-scope="props">
+                    <FormItem class="padding-right-medium" prop="name" label="商品名称">
+                        <Input v-model="props.params.name" placeholder="商品名称"/>
+                    </FormItem>
+                    <FormItem class="padding-right-medium" prop="code" label="商品编码">
+                        <Input v-model="props.params.code" placeholder="商品编码"/>
+                    </FormItem>
+                    <FormItem class="padding-right-medium" prop="shortname" label="商品简称">
+                        <Input v-model="props.params.shortname" placeholder="商品简称"/>
+                    </FormItem>
+                    <FormItem class="padding-right-medium" prop="pinyin" label="拼音码">
+                        <Input v-model="props.params.pinyin" placeholder="拼音码"/>
+                    </FormItem>
+                    <FormItem class="padding-right-medium" prop="standard" label="规格">
+                        <Input v-model="props.params.standard" placeholder="规格"/>
+                    </FormItem>
+                    <FormItem class="padding-right-medium" prop="model" label="型号">
+                        <Input v-model="props.params.model" placeholder="型号"/>
+                    </FormItem>
+                </template>
 
-            <template slot="edit-form" slot-scope="props">
-                <Tabs type="card">
-                    <TabPane label="基本信息">
-                        <basic-form-content :form-data="props.data"></basic-form-content>
-                    </TabPane>
-                    <TabPane label="售价管理" style="padding: 0 20px;">
-                        <sale-price-form-content :form-data="props.data"></sale-price-form-content>
-                    </TabPane>
-                    <TabPane label="属性设置">
-                        <property-form-content ref="propertyFormContent" :form-data="props.data"></property-form-content>
-                    </TabPane>
-                    <TabPane label="商品图片管理">
-                        <image-form-content :form-data="props.data"></image-form-content>
-                    </TabPane>
-                </Tabs>
-            </template>
-        </single-table>
-    </Card>
+                <template slot="edit-form" slot-scope="props">
+                    <Tabs type="card">
+                        <TabPane label="基本信息">
+                            <basic-form-content :form-data="props.data" :tree="categoryData"></basic-form-content>
+                        </TabPane>
+                        <TabPane label="售价管理" style="padding: 0 20px;">
+                            <sale-price-form-content :form-data="props.data"></sale-price-form-content>
+                        </TabPane>
+                        <TabPane label="属性设置">
+                            <property-form-content ref="propertyFormContent" :form-data="props.data"></property-form-content>
+                        </TabPane>
+                        <TabPane label="商品图片管理">
+                            <image-form-content :form-data="props.data"></image-form-content>
+                        </TabPane>
+                    </Tabs>
+                </template>
+            </single-table>
+        </Card>
+    </div>
 </template>
 
 <script>
     import util from '@/libs/util';
     import SingleTable from '@/views/my-components/single-table/single-table.vue';
+    import EditableTree from '@/views/my-components/editable-tree/editable-tree.vue'
     import BasicFormContent from './basic-form-content.vue';
     import SalePriceFormContent from './sale-price-form-content.vue';
     import PropertyFormContent from './property-form-content.vue';
@@ -68,12 +85,16 @@
         components: {
             PropertyFormContent,
             SingleTable,
+            EditableTree,
             BasicFormContent,
             SalePriceFormContent,
             ImageFormContent
         },
         data() {
             return {
+                tree: {
+                    selected: {}
+                },
                 table: {
                     columns: [
                         {width: 100, render:(h, {row}) => {
@@ -85,9 +106,40 @@
                             })
                         }},
                         {render:(h, {row}) => {
+                            let status;
+                            if(row.logicallyDeleted) {
+                                status = h('span', [
+                                    h('Icon', {
+                                        props: {
+                                            type: 'record',
+                                            color: '#ccc'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }),
+                                    h('span', '停用')
+                                ]);
+                            } else{
+                                status = h('span', [
+                                    h('Icon', {
+                                        props: {
+                                            type: 'record',
+                                            color: '#52c41a'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }),
+                                    h('span', '启用')
+                                ]);
+                            }
                             return h('div', [
                                 h('p', `商品名称：${row.name}`),
-                                h('p', `商品编码：${row.code}`)
+                                h('p', `商品编码：${row.code}`),
+                                h('p', [
+                                    status
+                                ])
                             ])
                         }},
                         {render:(h, {row}) => {
@@ -136,6 +188,49 @@
                                 }, '查看库存')])
                             ])
                         }}
+                    ],
+                    queryParams: {},
+                    actions: [
+                        (h, params)=> {
+                            return h('Dropdown', {
+                                style: {
+                                    textAlign: 'left'
+                                }
+                            }, [
+                                h('a', {
+                                    attrs: {
+                                        href: 'javascript:void(0)'
+                                    }
+                                }, [
+                                    h('span', '更多'),
+                                    h('Icon', {props: {type: 'arrow-down-b'}})
+                                ]),
+                                h('DropdownMenu', {
+                                    slot: 'list'
+                                }, [
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                util.ajax.post(`/api/goods/enable/${params.row.id}`).then((r)=>{
+                                                    this.$Message.success('启用成功');
+                                                    this.$refs.table.reloadGrid();
+                                                });
+                                            }
+                                        }
+                                    }, '启用'),
+                                    h('DropdownItem', {
+                                        nativeOn: {
+                                            click:()=>{
+                                                util.ajax.post(`/api/goods/disable/${params.row.id}`).then((r)=>{
+                                                    this.$Message.success('停用成功');
+                                                    this.$refs.table.reloadGrid();
+                                                });
+                                            }
+                                        }
+                                    }, '停用')
+                                ])
+                            ])
+                        }
                     ]
                 },
                 form: {
@@ -149,6 +244,7 @@
                     },
                     data: {
                         id: null,
+                        goodsCategoryId: null,
                         name: null,
                         code: null,
                         shortname: null,
@@ -271,10 +367,38 @@
                 this.$refs.propertyFormContent.$nextTick(()=>{
                     this.$refs.propertyFormContent.defaultSelectedData = defaultSelectedData;
                 })
+            },
+            onSelectTree(nodes) {
+                if(nodes && nodes.length > 0) {
+                    this.tree.selected = nodes[0];
+                }
+                this.loadGrid();
+            },
+            loadGrid() {
+                this.table.queryParams.goodsCategoryId = this.tree.selected.id;
+                this.$refs.table.loadGrid({
+                    silent: true
+                });
+            },
+            treeTransformResponse(response) {
+                response.data.push({
+                    id: 'isNull',
+                    name: '未分组',
+                    _addAble: false,
+                    _editAble: false,
+                    _deleteAble: false
+                });
+                return response;
+            }
+        },
+        computed: {
+            categoryData() {
+                return this.$refs.goodsCategory;
             }
         },
         mounted() {
-            this.$refs.table.loadGrid();
+            this.$refs.goodsCategory.loadTreeData();
+            this.loadGrid();
         }
     }
 </script>

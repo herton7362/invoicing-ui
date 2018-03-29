@@ -33,7 +33,7 @@
                         <div class="end">
                             <div class="actions">
                                 <a href="javascript:void(0)" @click="openEditModal(row)">修改</a>
-                                <Poptip confirm transfer title="您确定删除这条内容吗？" @on-ok="remove(row)">
+                                <Poptip confirm transfer title="你确定删除这条内容吗？" @on-ok="remove(row)">
                                     <a href="javascript:void(0)">删除</a>
                                 </Poptip>
                                 <Dropdown :transfer="true">

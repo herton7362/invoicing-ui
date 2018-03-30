@@ -1,0 +1,103 @@
+.employee {
+  margin: 24px 14px;
+  &-head{
+    .ivu-alert {
+      display: inline-block;
+      width: 80%;
+      margin-bottom: 0;
+    }
+    button {
+      float:right;
+    }
+  }
+  &-block,
+  &-add {
+    height: 188px;
+    background: #fff;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  &-add {
+    font-size: 14px;
+  }
+
+  &-add:hover {
+    background: #fff;
+  }
+
+  &-block {
+    .ivu-card-body {
+      padding: 20px 20px 0 20px;
+    }
+
+    .ivu-avatar {
+      float: left;
+      width: 48px;
+      height: 48px;
+      line-height: 48px;
+      border-radius: 24px;
+      color: #f56a00;
+      background-color: #fde3cf;
+    }
+    
+    &-detail {
+      margin-left: 60px;
+    }
+
+    &-title {
+      margin-bottom: 12px;
+      font-size: 16px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      color: rgba(0,0,0,.85);
+      font-weight: 500;
+      .config {
+        float: right;
+        font-size: 14px;
+        line-height: 0;
+        span.text {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &-description {
+      color: rgba(0,0,0,.45);
+    }
+  }
+
+  &-actions {
+    background: #f7f9fa;
+    border-top: 1px solid #e8e8e8;
+    zoom: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    &>li:not(:last-child) {
+      border-right: 1px solid #e8e8e8;
+    }
+    &>li {
+      float: left;
+      text-align: center;
+      color: rgba(0,0,0,.45);
+      button {
+        padding: 12px 0;
+      }
+    }
+    &:after {
+      content: " ";
+      display: table;
+      clear: both;
+      visibility: hidden;
+      font-size: 0;
+      height: 0;
+    }
+  }
+}

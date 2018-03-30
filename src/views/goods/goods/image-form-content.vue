@@ -18,12 +18,11 @@
                     <Icon class="add-image-btn" type="plus-round"></Icon>
                     <div slot="tip" class="el-upload__tip">封面</div>
                 </div>
-                <div v-if="cover.file.attachmentId">
+                <div class="cover-img" v-if="cover.file.attachmentId">
                     <template v-if="cover.file.status === 'finished'">
                         <img width="100%" :src="'/attachment/download/' + cover.file.attachmentId | baseUrl">
-                        <div class="demo-upload-list-cover">
-                            <Icon type="ios-eye-outline"></Icon>
-                            <Icon type="ios-trash-outline"></Icon>
+                        <div class="upload-list-cover">
+                            <Icon type="ios-trash-outline" @click.native.stop="removeCover"></Icon>
                         </div>
                     </template>
                     <template v-else>
@@ -45,12 +44,11 @@
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图1</div>
                     </div>
-                    <div v-if="attached1.file.attachmentId">
+                    <div class="img" v-if="attached1.file.attachmentId">
                         <template v-if="attached1.file.status === 'finished'">
                             <img width="100%" :src="'/attachment/download/' + attached1.file.attachmentId | baseUrl">
-                            <div class="demo-upload-list-cover">
-                                <Icon type="ios-eye-outline"></Icon>
-                                <Icon type="ios-trash-outline"></Icon>
+                            <div class="upload-list-cover">
+                                <Icon type="ios-trash-outline" @click.native.stop="removeAttached1"></Icon>
                             </div>
                         </template>
                         <template v-else>
@@ -69,12 +67,11 @@
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图2</div>
                     </div>
-                    <div v-if="attached2.file.attachmentId">
+                    <div class="img" v-if="attached2.file.attachmentId">
                         <template v-if="attached2.file.status === 'finished'">
                             <img width="100%" :src="'/attachment/download/' + attached2.file.attachmentId | baseUrl">
-                            <div class="demo-upload-list-cover">
-                                <Icon type="ios-eye-outline"></Icon>
-                                <Icon type="ios-trash-outline"></Icon>
+                            <div class="upload-list-cover">
+                                <Icon type="ios-trash-outline" @click.native.stop="removeAttached2"></Icon>
                             </div>
                         </template>
                         <template v-else>
@@ -95,12 +92,11 @@
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图3</div>
                     </div>
-                    <div v-if="attached3.file.attachmentId">
+                    <div class="img" v-if="attached3.file.attachmentId">
                         <template v-if="attached3.file.status === 'finished'">
                             <img width="100%" :src="'/attachment/download/' + attached3.file.attachmentId | baseUrl">
-                            <div class="demo-upload-list-cover">
-                                <Icon type="ios-eye-outline"></Icon>
-                                <Icon type="ios-trash-outline"></Icon>
+                            <div class="upload-list-cover">
+                                <Icon type="ios-trash-outline" @click.native.stop="removeAttached3"></Icon>
                             </div>
                         </template>
                         <template v-else>
@@ -119,12 +115,11 @@
                         <Icon class="add-image-btn" type="plus-round"></Icon>
                         <div slot="tip" class="el-upload__tip">附图4</div>
                     </div>
-                    <div v-if="attached4.file.attachmentId">
+                    <div class="img" v-if="attached4.file.attachmentId">
                         <template v-if="attached4.file.status === 'finished'">
                             <img width="100%" :src="'/attachment/download/' + attached4.file.attachmentId | baseUrl">
-                            <div class="demo-upload-list-cover">
-                                <Icon type="ios-eye-outline"></Icon>
-                                <Icon type="ios-trash-outline"></Icon>
+                            <div class="upload-list-cover">
+                                <Icon type="ios-trash-outline" @click.native.stop="removeAttached4"></Icon>
                             </div>
                         </template>
                         <template v-else>
@@ -203,6 +198,26 @@
                     file.isCover = false;
                 });
                 Object.assign(this.formData.goodsAttached4Image, file);
+            },
+            removeCover() {
+                this.cover.file = {}
+                this.formData.goodsCoverImage.attachmentId = null;
+            },
+            removeAttached1() {
+                this.attached1.file = {}
+                this.formData.goodsAttached1Image.attachmentId = null;
+            },
+            removeAttached2() {
+                this.attached2.file = {}
+                this.formData.goodsAttached2Image.attachmentId = null;
+            },
+            removeAttached3() {
+                this.attached3.file = {}
+                this.formData.goodsAttached3Image.attachmentId = null;
+            },
+            removeAttached4() {
+                this.attached4.file = {}
+                this.formData.goodsAttached4Image.attachmentId = null;
             }
         },
         mounted() {

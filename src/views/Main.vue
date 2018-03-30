@@ -3,15 +3,16 @@
 </style>
 <template>
     <div class="main" :class="{'main-hide-text': shrink}">
-        <div class="sidebar-menu-con" :style="{width: shrink?'60px':'200px', overflow: shrink ? 'visible' : 'auto'}">
+        <div class="sidebar-menu-con" :style="{width: shrink?'60px':'200px'}">
             <shrinkable-menu
                     :shrink="shrink"
                     @on-change="handleSubmenuChange"
+                    @on-open-change="handleSubmenuOpenChange"
                     :before-push="beforePush"
                     :open-names="openedSubmenuArr"
                     :menu-list="menuList">
                 <div slot="top" class="logo-con">
-                    <!--<img v-show="!shrink"  src="../images/logo.jpg" key="max-logo" />
+                   <!-- <img v-show="!shrink"  src="../images/logo.jpg" key="max-logo" />
                     <img v-show="shrink" src="../images/logo-min.jpg" key="min-logo" />-->
                 </div>
             </shrinkable-menu>
@@ -71,6 +72,7 @@
     import messageTip from './main-components/message-tip.vue';
     import Cookies from 'js-cookie';
     import util from '@/libs/util.js';
+    import IScroll from 'iscroll';
 
     export default {
         components: {
@@ -86,7 +88,8 @@
                 shrink: false,
                 userName: '',
                 isFullScreen: false,
-                openedSubmenuArr: this.$store.state.app.openedSubmenuArr
+                openedSubmenuArr: this.$store.state.app.openedSubmenuArr,
+                menuScroll: null
             };
         },
         computed: {
@@ -128,6 +131,13 @@
                 let messageCount = 3;
                 this.messageCount = messageCount.toString();
                 this.$store.commit('setMessageCount', messageCount);
+                this.menuScroll = new IScroll('.ivu-shrinkable-menu-wrapper', {
+                    mouseWheel: true,
+                    scrollbars: 'custom',
+                    interactiveScrollbars: true,
+                    shrinkScrollbars: 'scale',
+                    fadeScrollbars: true
+                });
             },
             toggleClick () {
                 this.shrink = !this.shrink;
@@ -153,7 +163,14 @@
                 }
             },
             handleSubmenuChange (val) {
-                // console.log(val)
+                setTimeout(()=>{
+                    this.menuScroll.refresh();
+                }, 300)
+            },
+            handleSubmenuOpenChange() {
+                setTimeout(()=>{
+                    this.menuScroll.refresh();
+                }, 300)
             },
             beforePush (name) {
                 // if (name === 'accesstest_index') {

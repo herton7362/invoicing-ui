@@ -8,6 +8,7 @@
         <single-table ref="table"
                       :columns="table.columns"
                       :actions="table.actions"
+                      action-direction="vertical"
                       form-title="往来单位维护"
                       domain-url="businessRelatedUnit"
                       :modal-width="800"
@@ -319,7 +320,7 @@
                                                 marginRight: '5px'
                                             }
                                         }),
-                                        h('span', '启用')
+                                        h('span', '正常')
                                     ]);
                                 }
                             }},

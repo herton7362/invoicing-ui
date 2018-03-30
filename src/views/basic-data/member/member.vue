@@ -149,7 +149,7 @@
                                 marginRight: '5px'
                             }
                         }),
-                        h('span', '启用')
+                        h('span', '正常')
                     ]);
                 }
             }

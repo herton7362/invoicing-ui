@@ -2,13 +2,14 @@
   display: inline-block;
   width: 100%;
   &-tools {
-    display: inline-block;
+    display: none;
     float: right;
     margin-right: 24px;
   }
 
-  &-operator {
-    color: #666;
+  &-operator i {
+    color: #fff;
+    transition: all .2s;
   }
 
   &-operator {
@@ -23,5 +24,17 @@
     .editable-tree-node-tools {
       margin-right: 46px;
     }
+  }
+
+  &:hover &-tools {
+    display: inline-block;
+  }
+
+  &:hover &-operator i {
+    color: #666;
+  }
+
+  &:hover &-operator:hover i {
+    color: #2d8cf0;
   }
 }

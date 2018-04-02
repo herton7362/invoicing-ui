@@ -10,7 +10,9 @@
                       domain-url="admin"
                       :form-rule="form.rule"
                       :form-data="form.data"
-                      :form-transform-response="formTransformResponse">
+                      :form-transform-response="formTransformResponse"
+                      @on-new-modal-open="onNewModalOpen"
+                      @on-save-success="onSaveSuccess">
             <template slot="query-form" slot-scope="props">
                 <FormItem class="padding-right-medium" prop="loginName" label="登录名">
                     <Input v-model="props.params.loginName" placeholder="登录名"/>
@@ -20,7 +22,7 @@
                 </FormItem>
                 <FormItem class="padding-right-medium" prop="roleId" label="角色">
                     <label>
-                        <Select v-model="props.params.roleId">
+                        <Select v-model="props.params.roleId" transfer>
                             <Option v-for="role in roles" :value="role.id" :key="role.id">{{role.name}}</Option>
                         </Select>
                     </label>
@@ -29,7 +31,8 @@
 
             <template slot="edit-form" slot-scope="props">
                 <FormItem label="登录名" prop="loginName">
-                    <Input v-model="props.data.loginName" placeholder="请输入登录名"/>
+                    <Input v-model="props.data.loginName" placeholder="请输入登录名" style="width: 200px;"/>
+                    @{{appId}}
                 </FormItem>
                 <FormItem label="名称" prop="name">
                     <Input v-model="props.data.name" placeholder="请输入名称"/>
@@ -117,11 +120,25 @@ export default {
         formTransformResponse(response) {
             response.data.password = null;
             return response;
+        },
+        loadGrid() {
+            this.$refs.table.loadGrid();
+        },
+        onSaveSuccess() {
+            this.$emit('on-save-success');
+        },
+        onNewModalOpen() {
+            this.$refs.table.form.data.roleIds = [this.$refs.table.$refs.table.queryParams.roleId];
         }
     },
     mounted() {
         this.loadRole();
-        this.$refs.table.loadGrid();
+        this.loadGrid();
+    },
+    computed: {
+        appId() {
+            return this.$store.state.user.loginUser.clientId;
+        }
     }
 };
 </script>

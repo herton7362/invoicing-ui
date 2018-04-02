@@ -220,6 +220,7 @@
                             this.form.modal = false;
                             this.$Message.success('保存成功');
                             this.loadGrid();
+                            this.$emit('on-save-success');
                         }).catch((error)=>{
                             this.clearFormLoading();
                             return Promise.reject(error);

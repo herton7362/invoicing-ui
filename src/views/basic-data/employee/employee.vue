@@ -7,10 +7,13 @@
     <div class="employee">
         <div class="employee-head">
             <Alert show-icon>根据员工的职能选择角色，然后新增账号。可以自定义角色，进行权限配置。</Alert>
-            <Button type="primary">员工列表</Button>
+            <RadioGroup v-model="admin.visible" type="button" @on-change="onVisibleChange">
+                <Radio :label="0">角色</Radio>
+                <Radio :label="1">员工</Radio>
+            </RadioGroup>
         </div>
 
-        <Row :gutter="24">
+        <Row :gutter="24" v-if="!admin.visible">
             <Col :sm="12" :md="8">
             <Button class="employee-add" long type="dashed" icon="ios-plus-empty" @click="openNewRoleModal">
                 新增角色
@@ -22,22 +25,23 @@
                 <div class="employee-block-detail">
                     <div class="employee-block-title">
                         {{data.name}}
-                        <Button class="config" type="text" size="small">
+                        <Button class="config" type="text" size="small" @click="openAuthorizeModal(data)">
                             <span class="text">配置权限</span> <Icon type="gear-a"></Icon>
                         </Button>
                     </div>
                     <div class="employee-block-description">
-                        <div>
-                            {{data.remark}}
-                        </div>
+                        {{data.remark}}
                     </div>
+                    <p>
+                        该角色目前已配置 <span class="role-staff-account-mount">{{data.staffAccountMount}}</span> 个账号
+                    </p>
                 </div>
                 <ul class="employee-actions">
                     <li style="width: 50%;">
-                        <Button type="text" long>新增账号</Button>
+                        <Button type="text" long @click="openNewAdminModal(data)">新增账号</Button>
                     </li>
                     <li style="width: 50%;">
-                        <Button type="text" long>管理账号</Button>
+                        <Button type="text" long @click="switchAdminList(data)">管理账号</Button>
                     </li>
                 </ul>
             </Card>
@@ -51,13 +55,24 @@
                 </FormItem>
             </Form>
         </Modal>
+        <admin ref="admin"
+               class="margin-top-large"
+               v-show="admin.visible"
+               @on-save-success="onSaveSuccess"></admin>
+        <authorization ref="authorization" @on-delete-success="onAuthorizationDelete"></authorization>
     </div>
 
 </template>
 
 <script>
     import util from '@/libs/util';
+    import Admin from '../../admin/admin/list.vue'
+    import Authorization from '../../admin/role/authorization.vue';
     export default {
+        components:{
+            Admin,
+            Authorization
+        },
         data() {
             return {
                 role: {
@@ -77,6 +92,9 @@
                             ]
                         }
                     }
+                },
+                admin: {
+                    visible: 0
                 }
             }
         },
@@ -119,6 +137,31 @@
                 this.$nextTick(() => {
                     this.roleForm.loading = true;
                 });
+            },
+            onVisibleChange(val) {
+                if(!val) {
+                    this.loadRoles();
+                } else {
+                    this.$refs.admin.loadGrid();
+                }
+            },
+            openAuthorizeModal(row) {
+                this.$refs.authorization.openAuthorizeModal(row);
+            },
+            onAuthorizationDelete() {
+                this.loadRoles();
+            },
+            openNewAdminModal(data) {
+                this.$refs.admin.$refs.table.openNewModal();
+                this.$refs.admin.$refs.table.form.data.roleIds = [data.id];
+            },
+            onSaveSuccess() {
+                this.loadRoles();
+            },
+            switchAdminList(data) {
+                this.$refs.admin.$refs.table.$refs.table.queryParams.roleId = data.id;
+                this.admin.visible = 1;
+                this.$refs.admin.loadGrid();
             }
         },
         mounted() {

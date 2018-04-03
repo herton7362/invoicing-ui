@@ -13,7 +13,7 @@ util.title = function (title) {
 const ajaxUrl = env === 'development'
     ? 'http://127.0.0.1:8080'
     : env === 'production'
-        ? 'http://repair-api.djrentcar.com'
+        ? 'http://test-api.dldjshop.com'
         : 'https://debug.url.com';
 
 util.client_id = env === 'development'? 'tonr' : 'tonr';

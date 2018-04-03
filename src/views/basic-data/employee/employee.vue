@@ -51,7 +51,7 @@
         <Modal v-model="role.modal" title="新增角色" :loading="role.form.loading" @on-ok="saveRole" :width="400">
             <Form ref="roleForm" :model="role.form.data" :rules="role.form.rule" :label-width="80">
                 <FormItem label="角色名称" prop="name">
-                    <Input v-model="role.form.data.name" placeholder="请输入角色名称"/>
+                    <Input v-model="role.form.data.name" placeholder="请输入角色名称" autofocus/>
                 </FormItem>
             </Form>
         </Modal>
@@ -115,6 +115,7 @@
                 this.$refs.roleForm.resetFields();
                 this.role.form.data.id = null;// 解决清空表单id不会删除问题
                 this.role.modal = true;
+                this.$nextTick(()=>util.autofocusFormField(this.$refs.roleForm));
             },
             saveRole() {
                 this.$refs.roleForm.validate((valid) => {

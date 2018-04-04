@@ -139,11 +139,11 @@
         methods: {
             onPageChange(page) {
                 this.table.currentPage = page;
-                this.loadGrid();
+                this.reloadGrid();
             },
             onPageSizeChange(pageSize) {
                 this.table.pageSize = pageSize;
-                this.loadGrid();
+                this.reloadGrid();
             },
             onFoldExpand(expand) {
                 if(this.$refs.queryForm.fields.length > 2) {
@@ -182,6 +182,7 @@
                     url = `/api/${this.domainUrl}`;
                 }
                 this.table.loading = true;
+
                 util.ajax.get(url, {
                     params: {
                         currentPage: this.table.currentPage,

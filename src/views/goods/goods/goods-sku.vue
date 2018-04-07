@@ -42,14 +42,17 @@
                             title:'属性值',
                             render: (h, params) => {
                                 const tags = [];
-                                params.row.goodsPropertyValues.forEach((goodsPropertyValue)=>{
-                                    tags.push(h('Tag', {
-                                        props: {
-                                            color: 'blue'
-                                        }
-                                    }, goodsPropertyValue.name))
-                                });
-                                return h('div', tags);
+                                if(params.row.goodsPropertyValues) {
+                                    params.row.goodsPropertyValues.forEach((goodsPropertyValue)=>{
+                                        tags.push(h('Tag', {
+                                            props: {
+                                                color: 'blue'
+                                            }
+                                        }, goodsPropertyValue.name))
+                                    });
+                                    return h('div', tags);
+                                }
+                               return '无';
                             }
                         },
                         {

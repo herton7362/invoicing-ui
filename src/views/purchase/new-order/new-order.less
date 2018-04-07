@@ -1,0 +1,221 @@
+.new-order {
+  &-cover {
+    width: 80px;
+    height: 80px;
+    margin: 20px 0 15px;
+  }
+  &-title {
+    width: 80px;
+    text-align: right;
+    display: inline-block;
+  }
+  .ivu-table-body {
+    line-height: normal;
+  }
+
+  &-main{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  &-left{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 400px;
+    bottom: 0;
+
+  }
+
+  &-list{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 410px;
+  }
+  .plus-goods {
+    display: inline-block;
+    padding: 10px 0;
+  }
+  .checkout {
+    &cart-container {
+      border: 1px solid #e0e0e0;
+      border-bottom: 0;
+      line-height: 1;
+      background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAMAAAA1k+1bAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAUVBMVEUAAADe3t7b29v////Z2dnT09Pa2trU1NTS0tLNzc3q6url5eXd3d34+Pjz8/Pp6en8/Pz5+fnw8PDm5ube3t7a2tr9/f309PTu7u76+voAAABzUxTxAAAAB3RSTlMADagBqFEMbGxmUgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAABUSURBVAjXfYxJDoAgEASHTZaBkQEU+f9HJWg82pfuSjoF8BtrnX+ndxZCwCgWiYgBUqJdqklK7pRmZ0JtNqOR8npxqe1otfCjOLmXq3T+9HmMscYNigMDAe+3+J8AAAAASUVORK5CYII=) bottom repeat-x;
+      background-color: #fff;
+    }
+    &cart-title {
+      h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        padding: 10px 0;
+      }
+    }
+    &cart-tablerow {
+      display: table;
+      table-layout: fixed;
+      background-color: #fcfaf8;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 18px 0 20px;
+      width: 100%;
+      font-size: 14px;
+      color: #666;
+    }
+    &cart-tablerow.tablehead {
+      background-color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      color: #999;
+    }
+    &cart-tablerow .cell {
+      display: table-cell;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+    &cart-tablerow.extra .cell,&cart-tablerow.tablehead .cell {
+      border: 0;
+    }
+    &cart-tablerow .itemname {
+      padding: 5px 0 3px 10px;
+      width: 45%;
+      font-size: 12px;
+      line-height: 1.3;
+    }
+    &cart-tablerow .itemquantity {
+      width: 30%;
+      text-align: center;
+      white-space: nowrap;
+    }
+    &cart-tablerow .itemtotal {
+      padding-right: 10px;
+      text-align: right;
+      width: 25%;
+    }
+    &cart-grouptitle {
+      border-bottom: 1px solid #eee;
+      padding-left: 30px;
+      height: 48px;
+      line-height: 48px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+    }
+    &cart-total {
+      padding: 52px 28px 10px;
+      font-size: 24px;
+      text-align: right;
+      color: #f74342;
+    }
+    &cart-total .num {
+      font-size: 46px;
+    }
+    &cart-totalextra {
+      padding: 0 30px 22px;
+      font-size: 12px;
+      color: #666;
+      text-align: right;
+    }
+    &-content {
+      padding: 25px 20px 30px 30px;
+      h2 {
+        margin-bottom: 15px;
+        font-size: 16px;
+        font-weight: 700;
+        .checkout-addaddress,
+        .checkout-addsupplier{
+          float: right;
+          text-decoration: underline;
+          font-size: 14px;
+          font-weight: 400;
+        }
+      }
+    }
+    &-address,
+    &-supplier{
+      position: relative;
+      margin-bottom: -1px;
+      padding: 15px 20px 15px 0;
+      width: 100%;
+      border: 1px solid #eee;
+      display: none;
+      cursor: pointer;
+    }
+    &-address:first-child，
+    &-supplier:first-child{
+      border-top: 1px solid #eee;
+    }
+    .checkout-address-list.showfirst .checkout-address:first-child,
+    .checkout-address-list.showmore .checkout-address,
+    .checkout-supplier-list.showfirst .checkout-supplier:first-child,
+    .checkout-supplier-list.showmore .checkout-supplier{
+      display: block;
+    }
+    &-address.active,
+    &-supplier.active {
+      position: relative;
+      display: table;
+      border-color: #0089dc;
+      z-index: 1;
+      background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAMAAAANmfvwAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAA9lBMVEUAAAAeieAeieAeieAeieAeieAeieAeieAeieAeieAeieAeieAhi+ANgN4Hfd0giuAfieAEe9w4luNMoeYKf90dieAdiOAAedwbiODm8vv///9Jn+YIfd0hi+ERg94BetwXhd8bh+Db7Prk8fszlOMNgN0Rgt4/muSFv+4Sg9/c7PrZ6/oZht8EfNwYhuDQ5vin0fMAeNwRgd4Cetzc7foYht8ciOAOgd5bqej+/v+p0vMAb9kSgt/d7frY6voeiuAAdNpHn+X9/v6izvLI4/jX6vpHnuX8/f7W6voWhd9In+Xi8PtPo+c0leMFe90Gfd0OgN4AAABS6aalAAAAC3RSTlMAdI6A/PDykHP35u7NkAkAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAABBElEQVQ4y4XR2VrCMBAF4GoFhIk2ClIdQFBEZREFZXFlcWFR0Pd/GtsG0jakyVz/XyZzjmHoZksrtkEnTNjRCohpBcS1Qk08oSRMqMhKKMhaRBMuIokvokhARJCgkJOQkJKwkBEuyN6+RWXEFweH6YwlISYcZZmwj08wl98kJhROiyXiirNzLF9UNoiz5fLqulopOG/UsN64ISJxRDN/i3et9n32Aesdm4gXuT/t9vqP+PT88opvTISIdwsdDEdjfP/AzxITQbK6lsLwa4I4nRWJGB3PwzFz/ObCJ4HUKdg/iyURCwj1Qq3fPy7WRGhOUqNKMKIUHlELlyRAM8YuJOPKSf0D2NEjZKfWInYAAAAASUVORK5CYII=) right bottom no-repeat;
+    }
+    &-address-icon,
+    &-supplier-icon {
+      display: table-cell;
+      width: 64px;
+      text-align: center;
+      vertical-align: middle;
+      border-right: 1px solid #eee;
+      font-size: 30px;
+      color: #ccc;
+    }
+    &-noaddress,
+    &-nosupplier {
+      display: block;
+      line-height: 72px;
+      background: #f1f1f1;
+      text-align: center;
+      color: #666;
+    }
+    &-address-info,
+    &-supplier-info {
+      display: table-cell;
+      padding-left: 16px;
+    }
+    &-supplier-info {
+      p:first-child {
+        margin-bottom: 4px;
+      }
+    }
+    &-address-edit,
+    &-supplier-edit {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      display: none;
+    }
+    &-address:hover,
+    &-supplier:hover {
+      background-color:#f9f9f9
+    }
+    &-address:hover .checkout-address-edit,
+    &-supplier:hover .checkout-supplier-edit {
+      display:block
+    }
+    &-showmoreaddress,
+    &-showmoresupplier {
+      display: inline-block;
+      margin-top: 8px;
+      color: #999;
+    }
+    .color-mute {
+      color: #999;
+    }
+  }
+}

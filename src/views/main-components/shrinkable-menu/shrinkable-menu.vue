@@ -5,9 +5,8 @@
 <template>
     <div :style="{background: bgColor}" class="ivu-shrinkable-menu">
         <slot name="top"></slot>
-        <div class="ivu-shrinkable-menu-wrapper">
+        <div class="ivu-shrinkable-menu-wrapper" v-show="!shrink">
             <sidebar-menu
-                v-show="!shrink"
                 :menu-theme="theme"
                 :menu-list="menuList"
                 :open-names="openNames"

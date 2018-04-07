@@ -63,7 +63,7 @@
                     <Col :span="8">
                     <FormItem label="类型" prop="type">
                         <RadioGroup v-model="props.data.type">
-                            <Radio label="VENDOR"><Icon type="android-car"></Icon> 供货商</Radio>
+                            <Radio label="VENDOR"><Icon type="log-in"></Icon> 供货商</Radio>
                             <Radio label="CUSTOMER"><Icon type="person-stalker"></Icon> 客户</Radio>
                         </RadioGroup>
                     </FormItem>
@@ -172,7 +172,7 @@
                                 return h('Tooltip', [
                                     h('Icon', {
                                         props: {
-                                            type: 'android-car',
+                                            type: 'log-in',
                                             size: 20
                                         }
                                     }),

@@ -52,30 +52,51 @@
             <div class="new-order-list">
                 <Card class="checkout-content" :padding="0">
                     <Form :label-width="80">
-                        <h2>收货仓库 <a class="checkout-addaddress" href="javascript:" v-if="stores.length">添加新仓库</a></h2>
+                        <h2>
+                            收货仓库
+                            <a class="checkout-addaddress"
+                               href="javascript:"
+                               v-if="warehouses.length"
+                               @click="openNewWarehouseModal">添加新仓库</a>
+                        </h2>
                         <ul class="checkout-address-list"
-                            v-if="stores.length"
+                            v-if="warehouses.length"
                             :class="{ showmore: showMoreAddress, showfirst: !showMoreAddress }">
-                            <li class="checkout-address" v-for="store in stores">
+                            <li class="checkout-address" v-for="warehouse in warehouses">
                                 <Icon class="checkout-address-icon" type="ios-location-outline"></Icon>
                                 <div class="checkout-address-info">
-                                    <p>{{store.name}} {{store.mobile}}</p>
-                                    <p>{{store.detailAddress}}</p>
+                                    <p>{{warehouse.name}} {{warehouse.linkman}} {{warehouse.telephone}}</p>
+                                    <p>{{warehouse.shippingAddress}}</p>
                                 </div>
                                 <div class="checkout-address-edit">
-                                    <a href="javascript:">修改</a>
-                                    <a href="javascript:">×</a>
+                                    <a href="javascript:" @click="openEditWarehouseModal(warehouse)">修改</a>
+                                    <Poptip placement="left-start"
+                                            confirm
+                                            transfer
+                                            title="你确认删除这条内容吗？"
+                                            @on-ok="removeWarehouse(warehouse)">
+                                        <a href="javascript:">×</a>
+                                    </Poptip>
                                 </div>
                             </li>
-                            <a class="checkout-showmoreaddress" href="javascript:" v-show="!showMoreAddress && stores.length > 1" @click="showMoreAddress = true">
+                            <a class="checkout-showmoreaddress" href="javascript:" v-show="!showMoreAddress && warehouses.length > 1" @click="showMoreAddress = true">
                                 显示更多仓库 <Icon type="chevron-down" size="12"></Icon>
                             </a>
                             <a class="checkout-showmoreaddress" href="javascript:" v-show="showMoreAddress" @click="showMoreAddress = false">
                                 收起 <Icon type="chevron-up" size="12"></Icon>
                             </a>
                         </ul>
-                        <a class="checkout-noaddress" href="javascript:" v-if="stores.length === 0">+ 添加新仓库</a>
-                        <h2 class="margin-top-large">供货单位 <a class="checkout-addsupplier" href="javascript:" v-if="suppliers.length">添加新单位</a></h2>
+                        <a class="checkout-noaddress"
+                           href="javascript:"
+                           v-if="warehouses.length === 0"
+                           @click="openNewWarehouseModal">+ 添加新仓库</a>
+                        <h2 class="margin-top-large">
+                            供货单位
+                            <a class="checkout-addsupplier"
+                               href="javascript:"
+                               v-if="suppliers.length"
+                               @click="openNewBusinessRelatedUnitModal">添加新供货商</a>
+                        </h2>
                         <ul class="checkout-supplier-list"
                             v-if="suppliers.length"
                             :class="{ showmore: showMoreSupplier, showfirst: !showMoreSupplier }">
@@ -87,8 +108,14 @@
                                     <p class="color-mute">{{supplier.linkman}} {{supplier.mobile}} {{supplier.telephone}}</p>
                                 </div>
                                 <div class="checkout-supplier-edit">
-                                    <a href="javascript:">修改</a>
-                                    <a href="javascript:">×</a>
+                                    <a href="javascript:" @click="openEditBusinessRelatedUnitModal(supplier)">修改</a>
+                                    <Poptip placement="left-start"
+                                            confirm
+                                            transfer
+                                            title="你确认删除这条内容吗？"
+                                            @on-ok="removeBusinessRelatedUnit(supplier)">
+                                        <a href="javascript:">×</a>
+                                    </Poptip>
                                 </div>
                             </li>
                             <a class="checkout-showmoresupplier" href="javascript:" v-show="!showMoreSupplier && suppliers.length > 1" @click="showMoreSupplier = true">
@@ -98,7 +125,10 @@
                                 收起 <Icon type="chevron-up" size="12"></Icon>
                             </a>
                         </ul>
-                        <a class="checkout-nosupplier" href="javascript:" v-if="suppliers.length === 0">+ 添加新供货商</a>
+                        <a class="checkout-nosupplier"
+                           href="javascript:"
+                           v-if="suppliers.length === 0"
+                           @click="openNewBusinessRelatedUnitModal">+ 添加新供货商</a>
                         <h2 class="margin-top-large">其他信息</h2>
                         <FormItem label="经手人">
                             <Select placeholder="请选择经手人" style="width: 150px;">
@@ -128,15 +158,23 @@
                 </Card>
             </div>
         </div>
+        <warehouse-form ref="warehouseForm" @on-save-success="onWarehouseSaveSuccess"></warehouse-form>
+        <business-related-unit-form ref="businessRelatedUnitForm"
+                                    @on-save-success="onBusinessRelatedUnitSaveSuccess"/>
     </div>
 </template>
 
 <script>
     import util from '@/libs/util';
     import GoodsSelector from '../../goods/common/goods-selector.vue'
+    import WarehouseForm from '../../basic-data/warehouse/warehouse-form';
+    import BusinessRelatedUnitForm from '../../basic-data/business-related-unit/business-related-unit-form.vue';
+
     export default {
         components: {
-            GoodsSelector
+            GoodsSelector,
+            WarehouseForm,
+            BusinessRelatedUnitForm
         },
         data() {
             return {
@@ -195,7 +233,7 @@
                 },
                 showMoreAddress: false,
                 showMoreSupplier: false,
-                stores: [],
+                warehouses: [],
                 suppliers: []
             }
         },
@@ -206,9 +244,9 @@
             onSelectChange(datas) {
                 this.goodsSelector.data = datas;
             },
-            loadStores() {
-                util.ajax.get('/api/store').then((response)=>{
-                    this.stores = response.data;
+            loadWarehouses() {
+                util.ajax.get('/api/warehouse').then((response)=>{
+                    this.warehouses = response.data;
                 })
             },
             loadSuppliers() {
@@ -219,10 +257,41 @@
                 }).then((response)=>{
                     this.suppliers = response.data;
                 })
+            },
+            onWarehouseSaveSuccess() {
+                this.loadWarehouses();
+            },
+            openNewWarehouseModal() {
+                this.$refs.warehouseForm.openNewModal();
+            },
+            openEditWarehouseModal(warehouse) {
+                this.$refs.warehouseForm.openEditModal(warehouse);
+            },
+            onBusinessRelatedUnitSaveSuccess() {
+                this.loadSuppliers();
+            },
+            openNewBusinessRelatedUnitModal() {
+                this.$refs.businessRelatedUnitForm.openNewModal();
+                this.$refs.businessRelatedUnitForm.$refs.saveForm.form.data.type = 'VENDOR';
+            },
+            openEditBusinessRelatedUnitModal(businessRelatedUnit) {
+                this.$refs.businessRelatedUnitForm.openEditModal(businessRelatedUnit);
+            },
+            removeBusinessRelatedUnit (row) {
+                util.ajax.delete(`/api/businessRelatedUnit/${row.id}`).then(() => {
+                    this.$Message.success('删除成功');
+                    this.loadSuppliers();
+                });
+            },
+            removeWarehouse (row) {
+                util.ajax.delete(`/api/warehouse/${row.id}`).then(() => {
+                    this.$Message.success('删除成功');
+                    this.loadWarehouses();
+                });
             }
         },
         mounted() {
-            this.loadStores();
+            this.loadWarehouses();
             this.loadSuppliers();
         }
     }

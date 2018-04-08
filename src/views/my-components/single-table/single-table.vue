@@ -1,6 +1,5 @@
 <style lang="less">
     @import '../../../styles/common.less';
-    @import 'single-table.less';
 </style>
 
 <template>
@@ -31,29 +30,36 @@
                 <slot name="actions"/>
             </template>
         </paged-table>
-        <Modal v-model="form.modal"
-               :title="formTitle"
-               :loading="form.loading"
-               :mask-closable="maskClosable"
-               @on-ok="save"
-               :width="modalWidth">
-            <Form ref="form" :model="form.data" :rules="formRule" :label-width="labelWidth">
-                <slot name="edit-form" :data="form.data"/>
-            </Form>
-        </Modal>
+        <save-form ref="saveForm"
+                   :domain-url="domainUrl"
+                   :form-title="formTitle"
+                   :mask-closable="maskClosable"
+                   :modal-width="modalWidth"
+                   :form-rule="formRule"
+                   :form-data="formData"
+                   :form-transform-response="formTransformResponse"
+                   :form-transform-data="formTransformData"
+                   :label-width="labelWidth"
+                   @on-save-success="onSaveSuccess">
+            <template slot="edit-form" slot-scope="props">
+                <slot name="edit-form" :data="props.data"/>
+            </template>
+        </save-form>
     </div>
 </template>
 
 <script>
     import util from '@/libs/util';
     import fold from '@/views/my-components/fold/fold.vue';
-    import PagedTable from './paged-table.vue'
+    import PagedTable from './paged-table.vue';
+    import SaveForm from './save-form.vue';
 
     export default {
         name: 'single-table',
         components: {
             fold,
-            PagedTable
+            PagedTable,
+            SaveForm
         },
         props: {
             columns: {
@@ -213,46 +219,16 @@
                     this.loadGrid();
                 });
             },
-            save() {
-                this.$refs.form.validate((valid) => {
-                    if (valid) {
-                        util.ajax.post(`/api/${this.domainUrl}`, this.formTransformData(this.form.data)).then(() => {
-                            this.form.modal = false;
-                            this.$Message.success('保存成功');
-                            this.loadGrid();
-                            this.$emit('on-save-success');
-                        }).catch((error)=>{
-                            this.clearFormLoading();
-                            return Promise.reject(error);
-                        });
-                    } else {
-                        this.clearFormLoading();
-                    }
-                })
-            },
-            clearFormLoading() {
-                this.form.loading = false;
-                this.$nextTick(() => {
-                    this.form.loading = true;
-                });
-            },
             openNewModal() {
-                this.$refs.form.resetFields();
+                this.$refs.saveForm.openNewModal();
                 this.$emit('on-new-modal-open');
-                this.form.data.id = null;// 解决清空表单id不会删除问题
-                this.form.modal = true;
-                this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
             },
             openEditModal(row) {
+                this.$refs.saveForm.openEditModal(row);
                 this.$emit('on-edit-modal-open');
-                this.$refs.form.resetFields();
-                util.ajax.get(`/api/${this.domainUrl}/${row.id}`).then((response) => {
-                    response = this.formTransformResponse(response);
-                    this.form.data = response.data;
-                    this.$emit('on-data-loaded', this.form.data);
-                    this.form.modal = true;
-                    this.$nextTick(()=>util.autofocusFormField(this.$refs.form));
-                });
+            },
+            onSaveSuccess() {
+                this.loadGrid();
             },
             resetQueryForm () {
                 this.$refs.table.resetQueryForm();

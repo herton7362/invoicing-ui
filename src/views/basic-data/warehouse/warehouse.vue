@@ -4,15 +4,10 @@
 
 <template>
     <Card>
-        <single-table ref="table"
-                      :columns="table.columns"
-                      :actions="table.actions"
-                      form-title="仓库维护"
+        <paged-table ref="table"
                       domain-url="warehouse"
-                      :modal-width="600"
-                      :label-width="70"
-                      :form-rule="form.rule"
-                      :form-data="form.data">
+                      :columns="table.columns"
+                      :actions="table.actions">
             <template slot="query-form" slot-scope="props">
                 <FormItem class="padding-right-medium" prop="code" label="仓库编号">
                     <Input v-model="props.params.code" placeholder="仓库编号"/>
@@ -37,89 +32,24 @@
                     <Input v-model="props.params.remark" placeholder="备注"/>
                 </FormItem>
             </template>
-
-            <template slot="edit-form" slot-scope="props">
-                <Card dis-hover>
-                    <span slot="title">
-                        基本信息
-                    </span>
-                    <Row>
-                        <FormItem label="仓库名称" prop="name">
-                            <Input v-model="props.data.name" placeholder="仓库名称" @on-change="onNameChange"/>
-                        </FormItem>
-                    </Row>
-                    <Row>
-                        <Col :span="8">
-                        <FormItem label="仓库编号" prop="code">
-                            <Input v-model="props.data.code" placeholder="仓库编号"/>
-                        </FormItem>
-                        </Col>
-                        <Col :span="8">
-                        <FormItem label="仓库简名" prop="shortname">
-                            <Input v-model="props.data.shortname" placeholder="仓库简名"/>
-                        </FormItem>
-                        </Col>
-                        <Col :span="8">
-                        <FormItem label="拼音码" prop="pinyin">
-                            <Input v-model="props.data.pinyin" placeholder="拼音码"/>
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <FormItem label="备注" prop="remark">
-                            <Input v-model="props.data.remark" placeholder="备注"/>
-                        </FormItem>
-                    </Row>
-                </Card>
-
-                <Card dis-hover class="margin-top-medium">
-                    <span slot="title">
-                        联系信息【将作为你物流单上的寄件人信息打印出来，请确保信息准确】
-                    </span>
-                    <Row>
-                        <Col :span="8">
-                        <FormItem label="联系人" prop="linkman">
-                            <Input v-model="props.data.linkman" placeholder="联系人"/>
-                        </FormItem>
-                        </Col>
-                        <Col :span="8">
-                        <FormItem label="联系电话" prop="telephone">
-                            <Input v-model="props.data.telephone" placeholder="联系电话"/>
-                        </FormItem>
-                        </Col>
-                        <Col :span="8">
-                        <FormItem label="邮政编码" prop="zipCode">
-                            <Input v-model="props.data.zipCode" placeholder="邮政编码"/>
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col :span="8">
-                        <FormItem label="地址" prop="addressId">
-                            <Select v-model="props.data.addressId" placeholder="地址">
-
-                            </Select>
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <FormItem label="发货地址" prop="shippingAddress">
-                            <Input v-model="props.data.shippingAddress" placeholder="发货地址"/>
-                        </FormItem>
-                    </Row>
-                </Card>
+            <template slot="actions">
+                <Button type="primary" icon="plus-round" @click="openNewModal"><span>新建</span></Button>
+                <slot name="actions"/>
             </template>
-        </single-table>
+        </paged-table>
+        <warehouse-form ref="saveForm" @on-save-success="onSaveSuccess"></warehouse-form>
     </Card>
 </template>
 
 <script>
     import util from '@/libs/util';
-    import SingleTable from '@/views/my-components/single-table/single-table.vue';
+    import PagedTable from '@/views/my-components/single-table/paged-table.vue';
+    import WarehouseForm from './warehouse-form.vue';
 
     export default {
         components: {
-            SingleTable
+            PagedTable,
+            WarehouseForm
         },
         data() {
             return {
@@ -162,6 +92,49 @@
                     ],
                     actions: [
                         (h, params)=> {
+                            return h('a', {
+                                attrs: {
+                                    href: 'javascript:void(0)'
+                                },
+                                style: {
+                                    marginRight: '5px',
+                                    display: 'inline-block'
+                                },
+                                on: {
+                                    click: () => {
+                                        this.openEditModal(params.row);
+                                    }
+                                }
+                            }, '修改')
+                        },
+                        (h, params)=> {
+                            return h('Poptip',
+                                {
+                                    props: {
+                                        confirm: true,
+                                        transfer: true,
+                                        title: '你确认删除这条内容吗？'
+                                    },
+                                    on: {
+                                        'on-ok': () => {
+                                            this.remove(params.row)
+                                        }
+                                    }
+                                },
+                                [
+                                    h('a', {
+                                        attrs: {
+                                            href: 'javascript:void(0)'
+                                        },
+                                        style: {
+                                            marginRight: '5px',
+                                            display: 'inline-block'
+                                        }
+                                    }, '删除')
+                                ]
+                            )
+                        },
+                        (h, params)=> {
                             return h('Dropdown', {
                                 style: {
                                     textAlign: 'left'
@@ -202,40 +175,24 @@
                             ])
                         }
                     ]
-                },
-                form: {
-                    rule: {
-                        name: [
-                            {required: true, message: '请填写仓库名称', trigger: 'blur'}
-                        ],
-                        code: [
-                            {required: true, message: '请填写仓库编号', trigger: 'blur'}
-                        ]
-                    },
-                    data: {
-                        id: null,
-                        name: null,
-                        code: null,
-                        shortname: null,
-                        pinyin: null,
-                        remark: null,
-                        linkman: null,
-                        telephone: null,
-                        zipCode: null,
-                        addressId: null,
-                        shippingAddress: null
-                    }
                 }
             }
         },
         methods: {
-            onNameChange() {
-                const formData = this.$refs.table.form.data;
-                let name = formData.name;
-                if(name) {
-                    formData.shortname = name;
-                    formData.pinyin = util.getFirstPinyinLetter(name);
-                }
+            remove (row) {
+                util.ajax.delete(`/api/warehouse/${row.id}`).then(() => {
+                    this.$Message.success('删除成功');
+                    this.$refs.table.loadGrid();
+                });
+            },
+            openNewModal() {
+                this.$refs.saveForm.openNewModal();
+            },
+            openEditModal(row) {
+                this.$refs.saveForm.openEditModal(row);
+            },
+            onSaveSuccess() {
+                this.$refs.table.loadGrid();
             }
         },
         mounted() {

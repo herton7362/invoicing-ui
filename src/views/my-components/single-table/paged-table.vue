@@ -1,6 +1,5 @@
 <style lang="less">
     @import '../../../styles/common.less';
-    @import 'single-table.less';
 </style>
 
 <template>

@@ -6,7 +6,7 @@
                 <template v-for="value in sku.goodsPropertyValues">
                     {{value.name}}&nbsp;
                 </template>
-                <InputNumber v-model="sku.count" @on-blur="onSkuBlur(sku)" :min="0" size="small"/>
+                <InputNumber v-model="sku.count" :min="0" size="small"/>
             </div>
         </div>
     </div>
@@ -26,7 +26,8 @@
                 goodsSku: {
                     data: [],
                     loading:false
-                }
+                },
+                unwatchList: []
             }
         },
         methods: {
@@ -41,20 +42,38 @@
                     }
                 }).then((response)=>{
                     response.data.content.forEach((data)=>{
-                        let s = this.selectedSkus.find((s)=>data.id === s.id);
+                        let s = this.selectedSkus.find((s)=>data.goodsId === s.id);
                         if(s){
-                            data.count = s.count;
+                            let subSku = s.skus.find((k)=>k.id === data.id);
+                            if(subSku) {
+                                data.count = subSku.count;
+                            } else {
+                                data.count = 0;
+                            }
                         } else {
                             data.count = 0;
                         }
-                    })
+                    });
                     this.goodsSku.data = response.data.content;
+                    this.unwatchSkuCount();
+                    this.watchSkuCount();
                     this.goodsSku.loading = false;
                     if(!this.goodsSku['scrll' + goods.id]) {
                         setTimeout(()=>{
                             this.loadIScroll(goods);
                         }, 500)
                     }
+                })
+            },
+            unwatchSkuCount() {
+                this.unwatchList.forEach((l)=>l());
+                this.unwatchList.splice(0);
+            },
+            watchSkuCount() {
+                this.goodsSku.data.forEach((d)=>{
+                    this.unwatchList.push(this.$watch(function () {
+                        return d.count;
+                    }, ()=>this.onSkuChange(d)))
                 })
             },
             loadIScroll(goods) {
@@ -66,21 +85,44 @@
                     fadeScrollbars: true
                 });
             },
-            onSkuBlur(sku) {
-                let s = this.selectedSkus.find((s)=>sku.id === s.id);
+            onSkuChange(sku) {
                 if(sku.count > 0) {
-                    if(s) {
-                        s.count = sku.count;
-                    } else {
-                        this.selectedSkus.push(sku);
-                    }
+                    this.addSku(sku);
                 } else {
-                    if(s) {
-                        this.selectedSkus.splice(this.selectedSkus.findIndex((s)=>sku.id === s.id), 1);
-                    }
+                    this.removeSku(sku);
                 }
                 this.$emit('on-select-change', this.selectedSkus);
+            },
+            addSku(sku) {
+                let s = this.selectedSkus.find((s)=>sku.goodsId === s.id);
+                if(s) {
+                    let subSku = s.skus.find((k)=>k.id === sku.id);
+                    if(subSku) {
+                        subSku.count = sku.count;
+                    } else {
+                        s.skus.push(sku);
+                    }
+                } else {
+                    this.selectedSkus.push(Object.assign({}, sku.goods, {
+                        skus: [sku]
+                    }));
+                }
+            },
+            removeSku(sku) {
+                let s = this.selectedSkus.find((s)=>sku.goodsId === s.id);
+                if(s) {
+                    let subSku = s.skus.find((k)=>k.id === sku.id);
+                    if(subSku) {
+                        s.skus.splice(s.skus.findIndex((s)=>s.id === sku.id), 1);
+                        if(s.skus.length === 0) {
+                            this.selectedSkus.splice(this.selectedSkus.findIndex((s)=>sku.goodsId === s.id), 1);
+                        }
+                    }
+                }
             }
+        },
+        beforeDestroy() {
+            this.unwatchSkuCount();
         }
     }
 </script>

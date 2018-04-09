@@ -20,25 +20,21 @@
                             <div class="cell itemquantity">份数</div>
                             <div class="cell itemtotal">小计（元）</div>
                         </div>
-                        <dl ng-if="basket.length" ng-repeat="basket in cart.vm.group" class="checkoutcart-group ng-scope">
-                            <dt ng-bind="$index + 1 + '号购物车'" class="checkoutcart-grouptitle">1号购物车</dt>
+                        <dl v-for="data in goodsSelector.data" class="checkoutcart-group ng-scope">
+                            <dt class="checkoutcart-grouptitle">{{data.name}} {{data.code}}</dt>
                             <!-- ngRepeat: item in basket -->
-                            <dd ng-repeat="item in basket" class="ng-scope">
+                            <dd v-for="sku in data.skus">
                                 <div class="checkoutcart-tablerow">
-                                    <div class="cell itemname" ng-bind="item.name" title="合茶碗蒸">合茶碗蒸</div>
+                                    <div class="cell itemname"
+                                         :title="sku.goodsPropertyValues && sku.goodsPropertyValues.map((s)=>s.name) || '无规格'">
+                                        {{sku.goodsPropertyValues &&
+                                        sku.goodsPropertyValues.map((s)=>s.name).toString()
+                                        || '无规格'}}
+                                    </div>
                                     <div class="cell itemquantity">
-                                        <InputNumber />
+                                        <InputNumber v-model="sku.count"/>
                                     </div>
                                     <div class="cell itemtotal">¥7.50</div>
-                                </div>
-                            </dd><!-- end ngRepeat: item in basket -->
-                            <dd ng-repeat="item in basket" class="ng-scope">
-                                <div class="checkoutcart-tablerow">
-                                    <div class="cell itemname" ng-bind="item.name" title="韩式泡菜">韩式泡菜</div>
-                                    <div class="cell itemquantity">
-                                        <InputNumber />
-                                    </div>
-                                    <div class="cell itemtotal">¥2.00</div>
                                 </div>
                             </dd><!-- end ngRepeat: item in basket -->
                         </dl>
@@ -150,7 +146,7 @@
                     </Form>
 
                     <Modal title="选择商品" v-model="goodsSelector.modal" :width="800">
-                        <goods-selector multiple @on-select-change="onSelectChange"></goods-selector>
+                        <goods-selector ref="goodsSelector" multiple @on-select-change="onSelectChange"></goods-selector>
                         <div slot="footer">
                             <Button type="text" @click="goodsSelector.modal=false">取消</Button>
                         </div>
@@ -180,56 +176,7 @@
             return {
                 goodsSelector: {
                     modal: false,
-                    data: [],
-                    columns: [
-                        {render:(h, {row}) => {
-                                const tags = [];
-                                if(row.goodsPropertyValues) {
-                                    row.goodsPropertyValues.forEach((goodsPropertyValue)=>{
-                                        tags.push(h('Tag', {
-                                            props: {
-                                                color: 'blue'
-                                            }
-                                        }, goodsPropertyValue.name))
-                                    });
-                                }
-                                return h('div', [
-                                    h('p', `商品名称：${row.goods.name}`),
-                                    h('p', `商品编码：${row.goods.code}`),
-                                    ...tags
-                                ])
-                            }},
-                        {render:(h, {row}) => {
-                                return h('div', [
-                                    h('div', [
-                                        h('label', {class: 'new-order-title'}, '重量：'),
-                                        h('span', `${row.goods.weight} kg`)
-                                    ]),
-                                    h('div', [
-                                        h('label', {class: 'new-order-title'}, '长度：'),
-                                        h('span', row.goods.length)
-                                    ]),
-                                    h('div', [
-                                        h('label', {class: 'new-order-title'}, '宽度：'),
-                                        h('span', row.goods.width)
-                                    ]),
-                                    h('div', [
-                                        h('label', {class: 'new-order-title'}, '高度：'),
-                                        h('span', row.goods.height)
-                                    ])
-                                ])
-                            }},
-                        {render:(h, {row}) => {
-                                return h('div', [
-                                    h('p', `库存：10 ${row.goods.basicGoodsPrice.unitName?row.goods.basicGoodsPrice.unitName: ''}`),
-                                    h('p', [h('a', {
-                                        attrs: {
-                                            href: 'javascript:void(0)'
-                                        }
-                                    }, '查看库存')])
-                                ])
-                            }}
-                    ]
+                    data: []
                 },
                 showMoreAddress: false,
                 showMoreSupplier: false,

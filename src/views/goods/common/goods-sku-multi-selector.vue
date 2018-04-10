@@ -1,3 +1,7 @@
+<style lang="less">
+    @import '../../../styles/common.less';
+</style>
+
 <template>
     <div :id="`scroll-content-${goods.id}`" class="ivu-poptip-body-content-inner">
         <Spin size="large" fix v-if="goodsSku.loading"></Spin>
@@ -6,7 +10,7 @@
                 <template v-for="value in sku.goodsPropertyValues">
                     {{value.name}}&nbsp;
                 </template>
-                <InputNumber v-model="sku.count" :min="0" size="small"/>
+                <stepper v-model="sku.count" :min="0" size="small"/>
             </div>
         </div>
     </div>
@@ -15,8 +19,12 @@
 <script>
     import util from '@/libs/util';
     import IScroll from 'iscroll';
+    import Stepper from '@/views/my-components/stepper/stepper.vue';
 
     export default {
+        components: {
+            Stepper
+        },
         props: {
             goods: Object,
             selectedSkus: Array

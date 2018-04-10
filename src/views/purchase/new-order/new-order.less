@@ -25,7 +25,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 400px;
+    width: 450px;
     bottom: 0;
 
   }
@@ -35,7 +35,7 @@
     top: 0;
     right: 0;
     bottom: 0;
-    left: 410px;
+    left: 460px;
   }
   .plus-goods {
     display: inline-block;
@@ -48,6 +48,19 @@
       line-height: 1;
       background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAMAAAA1k+1bAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAUVBMVEUAAADe3t7b29v////Z2dnT09Pa2trU1NTS0tLNzc3q6url5eXd3d34+Pjz8/Pp6en8/Pz5+fnw8PDm5ube3t7a2tr9/f309PTu7u76+voAAABzUxTxAAAAB3RSTlMADagBqFEMbGxmUgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAABUSURBVAjXfYxJDoAgEASHTZaBkQEU+f9HJWg82pfuSjoF8BtrnX+ndxZCwCgWiYgBUqJdqklK7pRmZ0JtNqOR8npxqe1otfCjOLmXq3T+9HmMscYNigMDAe+3+J8AAAAASUVORK5CYII=) bottom repeat-x;
       background-color: #fff;
+      .nodata-container {
+        height: 130px;
+      }
+      .nodata {
+        color: #999;
+        text-align: center;
+        height: 60px;
+        line-height: 60px;
+      }
+      .edit-btn {
+        padding-left: 5px;
+        padding-right: 0;
+      }
     }
     &cart-title {
       h2 {
@@ -78,6 +91,9 @@
       display: table-cell;
       border-bottom: 1px solid #eee;
       vertical-align: middle;
+      .stepper {
+        margin: 0 auto;
+      }
     }
     &cart-tablerow.extra .cell,&cart-tablerow.tablehead .cell {
       border: 0;
@@ -96,7 +112,7 @@
     &cart-tablerow .itemtotal {
       padding-right: 10px;
       text-align: right;
-      width: 25%;
+      width: 35%;
     }
     &cart-grouptitle {
       border-bottom: 1px solid #eee;

@@ -14,11 +14,16 @@
                         <Icon type="ios-plus-empty"></Icon>
                         添加商品
                     </a>
-                    <div>
+                    <div :class="{'nodata-container':goodsSelector.data.length === 0}">
                         <div class="checkoutcart-tablerow tablehead">
                             <div class="cell itemname">商品</div>
                             <div class="cell itemquantity">份数</div>
                             <div class="cell itemtotal">小计（元）</div>
+                        </div>
+                        <div class="nodata" v-if="goodsSelector.data.length === 0">
+                            你的订单是空的，开始添加
+                            <a href="javascript:void(0)" @click.prevent="openGoodsSelector">商品</a>
+                            吧
                         </div>
                         <dl v-for="data in goodsSelector.data" class="checkoutcart-group ng-scope">
                             <dt class="checkoutcart-grouptitle">{{data.name}} {{data.code}}</dt>
@@ -32,14 +37,31 @@
                                         || '无规格'}}
                                     </div>
                                     <div class="cell itemquantity">
-                                        <InputNumber v-model="sku.count"/>
+                                        <stepper size="small" v-model="sku.count"></stepper>
                                     </div>
-                                    <div class="cell itemtotal">¥7.50</div>
+                                    <div class="cell itemtotal">
+                                        <template v-if="!sku._editPrice">¥ {{sku.price}}</template>
+                                        <InputNumber size="small"
+                                                     v-model="sku.price"
+                                                     v-if="sku._editPrice" style="width: 60px"/>
+                                        <Button class="edit-btn"
+                                                type="text"
+                                                icon="edit"
+                                                v-if="!sku._editPrice"
+                                                @click="beginEditPrice(sku)"></Button>
+                                        <Button class="edit-btn"
+                                                type="text"
+                                                icon="checkmark"
+                                                v-if="sku._editPrice"
+                                                @click="finishEditPrice(sku)"></Button>
+                                    </div>
                                 </div>
                             </dd><!-- end ngRepeat: item in basket -->
                         </dl>
-                        <div class="checkoutcart-total color-stress">¥<span class="num">16.50</span></div>
-                        <div class="checkoutcart-totalextra">
+                        <div class="checkoutcart-total color-stress" v-if="goodsSelector.data.length > 0">
+                            ¥<span class="num">16.50</span>
+                        </div>
+                        <div class="checkoutcart-totalextra" v-if="goodsSelector.data.length > 0">
                             共 <span>2</span> 份商品
                         </div>
                     </div>
@@ -165,12 +187,14 @@
     import GoodsSelector from '../../goods/common/goods-selector.vue'
     import WarehouseForm from '../../basic-data/warehouse/warehouse-form';
     import BusinessRelatedUnitForm from '../../basic-data/business-related-unit/business-related-unit-form.vue';
+    import Stepper from '@/views/my-components/stepper/stepper.vue';
 
     export default {
         components: {
             GoodsSelector,
             WarehouseForm,
-            BusinessRelatedUnitForm
+            BusinessRelatedUnitForm,
+            Stepper
         },
         data() {
             return {
@@ -190,6 +214,12 @@
             },
             onSelectChange(datas) {
                 this.goodsSelector.data = datas;
+            },
+            beginEditPrice(sku) {
+                this.$set(sku, '_editPrice', true);
+            },
+            finishEditPrice(sku) {
+                this.$set(sku, '_editPrice', false);
             },
             loadWarehouses() {
                 util.ajax.get('/api/warehouse').then((response)=>{
